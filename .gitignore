@@ -1,0 +1,5 @@
+# 公開しないファイル
+*.csv
+setup_form.gs
+_preview_tmp.html
+.DS_Store
