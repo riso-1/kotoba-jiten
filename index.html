@@ -221,6 +221,9 @@
     .an-block { padding: 20px 18px; }
   }
 
+  /* ---- voices ---- */
+  .voice q { white-space: pre-line; }
+
   footer { text-align: center; font-size: 11px; color: #9aa7ab; padding: 0 0 30px; }
 
   @media (max-width: 640px) {
@@ -243,6 +246,7 @@
     <a href="#/search" data-r="search">逆引き</a>
     <a href="#/add" data-r="add">解釈をくわえる</a>
     <a href="#/analysis" data-r="analysis">分析</a>
+    <a href="#/voices" data-r="voices">ことばの声</a>
     <a href="#/end" data-r="end">おわりに</a>
     <a href="#/about" data-r="about">掲載について</a>
   </nav>
@@ -254,6 +258,8 @@
 <script src="data.js" onerror="this.remove()"></script>
 <!-- 分類・考察データ（任意）。分類作業の画面で書き出した analysis.js を置くと、分析ページに反映されます -->
 <script src="analysis.js" onerror="this.remove()"></script>
+<!-- アンケートの自由記述（言葉そのものについての設問）。「ことばの声」ページに表示されます -->
+<script src="voices.js" onerror="this.remove()"></script>
 <script>
 /* =========================================================
    言葉の定義
@@ -827,6 +833,7 @@ function viewAbout() {
     <ul>
       <li>アンケートや投稿フォームで、<strong>辞書への掲載に同意いただいた方の回答</strong>を掲載しています。</li>
       <li>解釈・理由・イメージの文章は、いただいた<strong>原文のまま</strong>掲載しています。内容を書き換えることはありません。</li>
+      <li>「ことばの声」には、言葉そのものについての設問への回答を原文のまま掲載しています。「ある」「なし」などの短い回答と、制作者個人へのメッセージは省略しています。</li>
       <li>逆引き用のキーワードは、文章中の表現から自動で付けています。回答者が付けたものではありません。</li>
       <li>カードの裏面には、回答者が入力したペンネーム・年代・立場などを表示しています。本名や連絡先はお聞きしていません。</li>
     </ul>
@@ -872,6 +879,22 @@ function viewEnd() {
     </ol>
     <p style="margin-top:2em"><a class="btn fill" href="#/add">あなたの解釈をくわえる</a>　<a class="btn" href="#/">表紙へもどる</a></p>
   </article>`;
+}
+
+function viewVoices() {
+  const groups = Array.isArray(window.KOTOBA_VOICES) ? window.KOTOBA_VOICES : [];
+  const who = p => [p.name, p.age, p.role].filter(v => v && v !== '回答しない').join('・');
+  app.innerHTML = `
+  <section class="fade" style="max-width:760px;margin:0 auto">
+    <div class="an-head"><span class="pill">アンケートから</span>
+      <h2>ことばの声</h2>
+      <p class="sample-note">5つの言葉の解釈のほかに、言葉そのものについてもアンケートでたずねました。回答は原文のまま掲載しています。「ある」「なし」などの短い回答と、制作者個人へのメッセージは省略しました。</p>
+    </div>
+    ${groups.map(g => `<div class="an-block">
+      <h3>${esc(g.question)}</h3>
+      ${g.answers.map(a => `<div class="mini voice" style="--c:var(--accent)"><q>${esc(a.text)}</q><small>${esc(who(a.profile || {}))}</small></div>`).join('')}
+    </div>`).join('') || '<p class="empty">まだ掲載している回答はありません。</p>'}
+  </section>`;
 }
 
 function viewImport() {
@@ -1143,6 +1166,7 @@ function route() {
   else if (r === 'word') viewWord(seg[1], seg[2]);
   else if (r === 'search') viewSearch(params.get('q') || '');
   else if (r === 'add') viewAdd(params.get('word'));
+  else if (r === 'voices') viewVoices();
   else if (r === 'end') viewEnd();
   else if (r === 'about') viewAbout();
   else if (r === 'import') viewImport();
