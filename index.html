@@ -202,7 +202,7 @@
   .mini small { display: block; color: var(--sub); font-size: 11px; margin-top: 4px; }
   .notes { white-space: pre-line; font-size: 15px; line-height: 1.9; }
   /* classify (制作者用) */
-  .cl-row { display: grid; grid-template-columns: 1fr 260px; gap: 18px; padding: 16px 0; border-bottom: 1px dashed var(--line); }
+  .cl-row { display: grid; grid-template-columns: 1fr 280px; gap: 18px; padding: 16px 0; border-bottom: 1px dashed var(--line); }
   .cl-row q { font-family: var(--serif); font-size: 16px; quotes: none; display: block; }
   .cl-row .sub { font-size: 12px; color: var(--sub); margin-top: 4px; white-space: pre-line; }
   .axis-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
@@ -212,6 +212,26 @@
   .cl-row input[type=text] { width: 100%; font: inherit; font-size: 12px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 4px; }
   .cl-row.done > div:first-child { opacity: .6; }
   .cl-row[hidden] { display: none; }
+  .dim-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 22px; }
+  .dim-tabs a { text-decoration: none; border: 1px solid var(--line); background: #fff; color: var(--ink); border-radius: 999px; padding: 5px 16px; font-size: 13px; }
+  .dim-tabs a.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .dim-h { font-size: 13px; color: var(--sub); margin: 18px 0 8px; font-weight: 700; }
+  .dim-h:first-of-type { margin-top: 0; }
+  .axis-grp small { display: block; font-size: 11px; color: var(--sub); margin-bottom: 3px; }
+  .cross-ctrl { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; margin: 0 0 16px; }
+  .cross-ctrl select { font: inherit; padding: 4px 8px; border: 1px solid var(--line); border-radius: 4px; background: #fff; }
+  .cross-wrap { overflow-x: auto; }
+  .an-table.cross th, .an-table.cross td { text-align: center; white-space: nowrap; }
+  .an-table.cross th:first-child { text-align: left; }
+  .an-table.cross .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: var(--a); margin-right: 6px; vertical-align: -1px; }
+  .an-table.cross td button { width: 100%; min-width: 3em; min-height: 36px; border: 2px solid transparent; border-radius: 4px; font: inherit; color: var(--ink); background: color-mix(in srgb, var(--accent) var(--h), #fff); cursor: pointer; }
+  .an-table.cross td button:disabled { cursor: default; color: var(--sub); background: #fafcfc; }
+  .an-table.cross td button:not(:disabled):hover, .an-table.cross td button.on { border-color: var(--ink); }
+  .an-table.cross tr.sum td, .an-table.cross tr.sum th { color: var(--sub); }
+  .cross-hit { margin-top: 20px; border-top: 1px solid var(--line); padding-top: 16px; }
+  .cross-hit h4 { margin: 0 0 12px; font-size: 14px; display: flex; justify-content: space-between; }
+  .cross-hit h4 span { color: var(--sub); font-weight: 400; }
+  .cross-w { display: block; font-family: var(--serif); font-size: 12px; margin-bottom: 2px; }
   .an-block textarea { width: 100%; min-height: 120px; font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 4px; resize: vertical; }
   @media (max-width: 760px) {
     .cols3 { grid-template-columns: 1fr; }
@@ -957,26 +977,61 @@ function viewImport() {
 /* =========================================================
    分析：解釈の「軸」による分類
    ---------------------------------------------------------
-   AXES  : 分類の項目。label・desc（分類の基準）は自由に書き換えてよい。
-           行を消せば、その分類は「未分類」扱いになる（データは消えない）。
+   DIMS  : 分類の観点（軸）。観点ごとに cats（分類の項目）を持つ。
+           label・desc（分類の基準）は自由に書き換えてよい。
+           項目の行を消せば、その分類は「未分類」扱いになる（データは消えない）。
+           観点を増やすときは、id が重ならないように行を足す。
    分類と考察は「分類作業」画面（#/analysis/classify）で入力する。
    入力内容はまずこのブラウザに保存され、「analysis.js を書き出す」で
    ファイルにして index.html と同じフォルダに置くと、誰が見ても反映される。
+
+   analysis.js の中身
+     axis     : 「自分と他者」の分類（最初の観点。以前のファイルと同じ形）
+     dims     : それ以外の観点の分類 { 観点id: { 解釈の鍵: 項目id } }
+     notes    : 言葉ごとの考察 { 言葉id: 文 }（観点に分けず、言葉ごとに1つ）
+     memo     : 分類メモ（非公開）
    ========================================================= */
-const AXES = [
-  { id: 'self',  label: '自分が軸',       short: '自分',       color: '#c4673c',
-    desc: '自分の感覚・気持ち・体・選択を中心に語られている解釈' },
-  { id: 'both',  label: '自分と他者のあいだ', short: 'あいだ',  color: '#a3a6a8', mid: true,
-    desc: '自分と他者（人・社会）との関係そのものが語られている解釈' },
-  { id: 'other', label: '他者・社会が軸', short: '他者・社会', color: '#2f7bb0',
-    desc: '他者の存在や、社会・みんなの基準を中心に語られている解釈' },
+const DIMS = [
+  { id: 'center', label: '自分と他者',
+    intro: 'その言葉が<strong>自分</strong>を中心に語られているか、<strong>他者や社会</strong>を中心に語られているか。',
+    cats: [
+      { id: 'self',  label: '自分が軸',       short: '自分',       color: '#c4673c',
+        desc: '自分の感覚・気持ち・体・選択を中心に語られている解釈' },
+      { id: 'both',  label: '自分と他者のあいだ', short: 'あいだ',  color: '#a3a6a8', mid: true,
+        desc: '自分と他者（人・社会）との関係そのものが語られている解釈' },
+      { id: 'other', label: '他者・社会が軸', short: '他者・社会', color: '#2f7bb0',
+        desc: '他者の存在や、社会・みんなの基準を中心に語られている解釈' },
+    ] },
+  { id: 'concrete', label: '具体と抽象',
+    intro: 'その言葉が<strong>具体的な場面や物</strong>で語られているか、<strong>抽象的な考え方や状態</strong>として語られているか。',
+    cats: [
+      { id: 'concrete', label: '具体的',         short: '具体', color: '#3f8f6b',
+        desc: '具体的な場面・物・人・行動を挙げて語られている解釈' },
+      { id: 'mixed',    label: '具体と抽象の両方', short: '両方', color: '#a3a6a8', mid: true,
+        desc: '具体的な例と、抽象的な言い換えの両方を含む解釈' },
+      { id: 'abstract', label: '抽象的',         short: '抽象', color: '#8a5a9e',
+        desc: '状態・考え方・定義として、言い換えの形で語られている解釈' },
+    ] },
+  { id: 'tone', label: '肯定と否定',
+    intro: 'その言葉を<strong>良いもの</strong>として語っているか、距離を置いたり<strong>否定的</strong>に語っているか。',
+    cats: [
+      { id: 'positive', label: '肯定的', short: '肯定', color: '#d08a2e',
+        desc: 'その言葉を良いもの・望ましいもの・大切なものとして語っている解釈' },
+      { id: 'neutral',  label: '中立',   short: '中立', color: '#a3a6a8', mid: true,
+        desc: '良し悪しの評価を含まず、意味や状態を説明している解釈' },
+      { id: 'negative', label: '否定的', short: '否定', color: '#4d5f8a',
+        desc: 'その言葉に違和感・窮屈さ・難しさなど、否定的な面を見ている解釈' },
+    ] },
 ];
-const axisById = id => AXES.find(a => a.id === id);
+const dimById = id => DIMS.find(d => d.id === id);
 const ANALYSIS_KEY = 'kotoba-jiten-analysis-v1';
-const emptyAnalysis = () => ({ axis: {}, memo: {}, notes: {} });
+const emptyAnalysis = () => ({ axis: {}, dims: {}, memo: {}, notes: {} });
+const normAnalysis = o => { const a = { ...emptyAnalysis(), ...o };
+  ['axis', 'dims', 'memo', 'notes'].forEach(k => { if (!a[k] || typeof a[k] !== 'object') a[k] = {}; });
+  return a; };
 const fileAnalysis = () => {
   const f = window.KOTOBA_ANALYSIS;
-  return f ? { ...emptyAnalysis(), ...JSON.parse(JSON.stringify(f)) } : emptyAnalysis();
+  return f ? normAnalysis(JSON.parse(JSON.stringify(f))) : emptyAnalysis();
 };
 let memoryAnalysis = null;
 const analysisSource = () => {
@@ -984,7 +1039,7 @@ const analysisSource = () => {
   return window.KOTOBA_ANALYSIS ? 'file' : 'none';
 };
 const loadAnalysis = () => {
-  try { const v = localStorage.getItem(ANALYSIS_KEY); if (v) return { ...emptyAnalysis(), ...JSON.parse(v) }; }
+  try { const v = localStorage.getItem(ANALYSIS_KEY); if (v) return normAnalysis(JSON.parse(v)); }
   catch { if (memoryAnalysis) return memoryAnalysis; }
   return fileAnalysis();
 };
@@ -996,7 +1051,10 @@ const entryKey = e => { const p = e.profile || {};
   return [e.word, String(e.text).trim(), p.age, p.gender, p.role].map(v => String(v ?? '').trim()).join('|'); };
 // 分析の対象はアンケートの回答だけ（投稿フォームから届いた解釈と、読者がこのブラウザで足した解釈は含めない）
 const analysisEntries = () => allEntries().filter(e => !e.mine && !e.posted);
-const axisOf = (e, a) => { const id = a.axis[entryKey(e)]; return axisById(id) ? id : null; };
+// 観点ごとの分類の置き場所（最初の観点は以前の analysis.js と同じ axis を使う）
+const dimMap = (a, id) => id === DIMS[0].id ? a.axis : (a.dims[id] = a.dims[id] || {});
+const catOf = (e, a, d) => { const id = dimMap(a, d.id)[entryKey(e)]; return d.cats.some(c => c.id === id) ? id : null; };
+const NONE_CAT = { id: null, label: '未分類', short: '未分類', color: '#e5ebed', none: true };
 
 function downloadAnalysisJs(a) {
   const js = `// ことばの解釈辞典 分類・考察データ（${new Date().toLocaleString('ja-JP')} 書き出し）\n// このファイルを index.html と同じフォルダに置くと、分析ページに表示されます。\nwindow.KOTOBA_ANALYSIS = ${JSON.stringify(a, null, 2)};\n`;
@@ -1005,49 +1063,52 @@ function downloadAnalysisJs(a) {
   el.download = 'analysis.js'; el.click();
 }
 
-const segStyle = ax => `--a:${ax.color}`;
-function stackBar(list, a) {
+const segStyle = c => `--a:${c.color}`;
+function stackBar(list, a, d) {
   const total = list.length || 1;
-  const parts = AXES.map(ax => ({ ax, n: list.filter(e => axisOf(e, a) === ax.id).length }));
+  const parts = d.cats.map(c => ({ c, n: list.filter(e => catOf(e, a, d) === c.id).length }));
   const none = list.length - parts.reduce((s, p) => s + p.n, 0);
   const seg = (n, cls, style, label, title) => n ? `<div class="seg ${cls}" style="flex:${n} 1 0;${style}" title="${esc(title)}">${n / total >= .12 ? `<span class="lb">${esc(label)}&nbsp;</span>${n}` : ''}</div>` : '';
-  return `<div class="stack">${parts.map(p => seg(p.n, p.ax.mid ? 'mid' : '', segStyle(p.ax), p.ax.short, `${p.ax.label}：${p.n}件（${Math.round(p.n / total * 100)}%）`)).join('')}${seg(none, 'none', '', '未分類', `未分類：${none}件`)}</div>`;
+  return `<div class="stack">${parts.map(p => seg(p.n, p.c.mid ? 'mid' : '', segStyle(p.c), p.c.short, `${p.c.label}：${p.n}件（${Math.round(p.n / total * 100)}%）`)).join('')}${seg(none, 'none', '', '未分類', `未分類：${none}件`)}</div>`;
 }
+const catDefs = d => `<div class="axis-defs">${d.cats.map(c => `<div style="${segStyle(c)}"><strong>${esc(c.label)}</strong>${esc(c.desc)}</div>`).join('')}</div>`;
+const miniCard = e => { const p = e.profile || {}; const w = wordById(e.word) || WORDS[0];
+  const who = [p.age && (p.age + (/^\d+$/.test(p.age) ? '歳' : '')), p.role].filter(Boolean).join('・');
+  return `<div class="mini" style="--c:${esc(e.color || w.color)}"><q>${esc(e.text)}</q>${who ? `<small>${esc(who)}</small>` : ''}</div>`; };
 
-function viewAnalysis(wid) {
+function viewAnalysis(params) {
   const a = loadAnalysis();
   const all = analysisEntries();
-  const classified = all.filter(e => axisOf(e, a)).length;
-  const w = wordById(wid) || WORDS[0];
-  const tabs = WORDS.map(x => `<a href="#/analysis?w=${x.id}" class="${x.id === w.id ? 'on' : ''}" style="color:${x.color}">${x.label}</a>`).join('');
-  const list = all.filter(e => e.word === w.id);
-  const mini = e => { const p = e.profile || {};
-    const who = [p.age && (p.age + (/^\d+$/.test(p.age) ? '歳' : '')), p.role].filter(Boolean).join('・');
-    return `<div class="mini" style="--c:${esc(e.color || w.color)}"><q>${esc(e.text)}</q>${who ? `<small>${esc(who)}</small>` : ''}</div>`; };
-  const unclassified = list.filter(e => !axisOf(e, a)).length;
+  const isCross = params.get('d') === 'cross';
+  const d = isCross ? null : (dimById(params.get('d')) || DIMS[0]);
+  const any = DIMS.some(x => all.some(e => catOf(e, a, x)));
+  const w = wordById(params.get('w')) || WORDS[0];
+  const dimTabs = [...DIMS.map(x => [x.id, x.label]), ['cross', '掛け合わせ']]
+    .map(([id, l]) => `<a href="#/analysis?d=${id}&w=${w.id}" class="${(isCross ? 'cross' : d.id) === id ? 'on' : ''}">${esc(l)}</a>`).join('');
 
-  app.innerHTML = `
-  <section class="fade">
-    <div class="an-head"><span class="pill">分析</span>
-      <h2>解釈の「軸」をくらべる</h2>
-      <p class="sample-note">アンケートで集まった解釈を、その言葉が<strong>自分</strong>を中心に語られているか、<strong>他者や社会</strong>を中心に語られているかで分類しました。同じ言葉でも、どこに軸を置くかは人によって異なります。</p>
-    </div>
-
-    ${classified ? `
+  let body = '';
+  if (!any) body = `<p class="empty">分類はまだありません。<br><a href="#/analysis/classify">分類作業の画面</a>で、解釈を分類してください。</p>`;
+  else if (d) {
+    const list = all.filter(e => e.word === w.id);
+    const unclassified = list.filter(e => !catOf(e, a, d)).length;
+    const note = a.notes[w.id];
+    const tabs = WORDS.map(x => `<a href="#/analysis?d=${d.id}&w=${x.id}" class="${x.id === w.id ? 'on' : ''}" style="color:${x.color}">${x.label}</a>`).join('');
+    body = all.some(e => catOf(e, a, d)) ? `
     <div class="an-block">
       <h3>分類の基準</h3>
-      <div class="axis-defs">${AXES.map(ax => `<div style="${segStyle(ax)}"><strong>${esc(ax.label)}</strong>${esc(ax.desc)}</div>`).join('')}</div>
+      <p class="sample-note" style="margin:0 0 14px">${d.intro}</p>
+      ${catDefs(d)}
     </div>
 
     <div class="an-block">
       <h3>5つの言葉の比較</h3>
-      <div class="legend">${AXES.map(ax => `<span style="${segStyle(ax)}">${esc(ax.label)}</span>`).join('')}<span style="--a:#e5ebed">未分類</span></div>
+      <div class="legend">${d.cats.map(c => `<span style="${segStyle(c)}">${esc(c.label)}</span>`).join('')}<span style="--a:#e5ebed">未分類</span></div>
       ${WORDS.map(x => { const l = all.filter(e => e.word === x.id);
-        return `<a class="stack-row" href="#/analysis?w=${x.id}"><span class="w" style="color:${x.color}">${x.label}</span>${stackBar(l, a)}<span class="n">${l.length}件</span></a>`; }).join('')}
+        return `<a class="stack-row" href="#/analysis?d=${d.id}&w=${x.id}"><span class="w" style="color:${x.color}">${x.label}</span>${stackBar(l, a, d)}<span class="n">${l.length}件</span></a>`; }).join('')}
       <details style="margin-top:14px;font-size:13px"><summary style="color:var(--sub)">表で見る</summary>
-        <table class="an-table"><thead><tr><th>言葉</th>${AXES.map(ax => `<th>${esc(ax.short)}</th>`).join('')}<th>未分類</th><th>計</th></tr></thead><tbody>
+        <table class="an-table"><thead><tr><th>言葉</th>${d.cats.map(c => `<th>${esc(c.short)}</th>`).join('')}<th>未分類</th><th>計</th></tr></thead><tbody>
         ${WORDS.map(x => { const l = all.filter(e => e.word === x.id);
-          const c = AXES.map(ax => l.filter(e => axisOf(e, a) === ax.id).length);
+          const c = d.cats.map(ct => l.filter(e => catOf(e, a, d) === ct.id).length);
           return `<tr><td>${x.label}</td>${c.map(n => `<td>${n}</td>`).join('')}<td>${l.length - c.reduce((s, n) => s + n, 0)}</td><td>${l.length}</td></tr>`; }).join('')}
         </tbody></table>
       </details>
@@ -1057,14 +1118,81 @@ function viewAnalysis(wid) {
     <div class="word-tabs">${tabs}</div>
     <div class="an-block">
       <h3 style="color:${w.color}">「${w.label}」の解釈の分布</h3>
-      ${a.notes[w.id] ? `<div class="notes" style="margin-bottom:22px">${esc(a.notes[w.id])}</div>` : ''}
-      <div class="cols3">${AXES.map(ax => { const l = list.filter(e => axisOf(e, a) === ax.id);
-        return `<div style="${segStyle(ax)}"><h4 class="${ax.mid ? 'mid' : ''}"><span>${esc(ax.label)}</span><span>${l.length}</span></h4>${l.map(mini).join('') || '<p class="sample-note">該当なし</p>'}</div>`; }).join('')}</div>
+      ${note ? `<div class="notes" style="margin-bottom:22px">${esc(note)}</div>` : ''}
+      <div class="cols3">${d.cats.map(c => { const l = list.filter(e => catOf(e, a, d) === c.id);
+        return `<div style="${segStyle(c)}"><h4 class="${c.mid ? 'mid' : ''}"><span>${esc(c.label)}</span><span>${l.length}</span></h4>${l.map(miniCard).join('') || '<p class="sample-note">該当なし</p>'}</div>`; }).join('')}</div>
       ${unclassified ? `<p class="sample-note" style="margin:8px 0 0">未分類 ${unclassified}件</p>` : ''}
     </div>`
-    : `<p class="empty">分類はまだありません。<br><a href="#/analysis/classify">分類作業の画面</a>で、解釈を分類してください。</p>`}
+    : `<div class="an-block"><h3>分類の基準</h3><p class="sample-note" style="margin:0 0 14px">${d.intro}</p>${catDefs(d)}</div>
+       <p class="empty">「${esc(d.label)}」の分類はまだありません。<br><a href="#/analysis/classify?w=${w.id}">分類作業の画面</a>で、解釈を分類してください。</p>`;
+  } else body = `<div id="cross"></div>`;
+
+  app.innerHTML = `
+  <section class="fade">
+    <div class="an-head"><span class="pill">分析</span>
+      <h2>解釈の「軸」をくらべる</h2>
+      <p class="sample-note">アンケートで集まった解釈を、${DIMS.length}つの観点で分類しました。同じ言葉でも、どこに軸を置くかは人によって異なります。「掛け合わせ」では、2つの観点を組み合わせて見ることができます。</p>
+    </div>
+    ${any ? `<div class="dim-tabs">${dimTabs}</div>` : ''}
+    ${body}
     <p class="sample-note" style="text-align:center;margin-top:30px"><a href="#/analysis/classify?w=${w.id}">分類作業（制作者用）</a></p>
   </section>`;
+  if (any && isCross) crossView(all, a, params);
+}
+
+// 掛け合わせ：2つの観点のクロス集計。表のマスを押すと、そこに入る解釈が下に並ぶ
+function crossView(all, a, params) {
+  const box = document.getElementById('cross');
+  let rd = dimById(params.get('r')) || DIMS[0];
+  let cd = dimById(params.get('c')) || DIMS.find(x => x !== rd);
+  if (cd === rd) cd = DIMS.find(x => x !== rd);
+  let ws = wordById(params.get('ws')) ? params.get('ws') : 'all';
+  let pick = null;
+  const sync = () => { const q = new URLSearchParams({ d: 'cross', r: rd.id, c: cd.id });
+    q.set('ws', ws);
+    history.replaceState(null, '', '#/analysis?' + q.toString()); };
+  const render = () => {
+    const list = ws === 'all' ? all : all.filter(e => e.word === ws);
+    const wd = wordById(ws);
+    const inCell = (r, c) => list.filter(e => catOf(e, a, rd) === r.id && catOf(e, a, cd) === c.id);
+    const rows = [...rd.cats, NONE_CAT].filter(r => !r.none || list.some(e => !catOf(e, a, rd)));
+    const cols = [...cd.cats, NONE_CAT].filter(c => !c.none || list.some(e => !catOf(e, a, cd)));
+    const max = Math.max(1, ...rd.cats.flatMap(r => cd.cats.map(c => inCell(r, c).length)));
+    const opt = (sel, v) => DIMS.map(x => `<option value="${x.id}" ${x === v ? 'selected' : ''}>${esc(x.label)}</option>`).join('');
+    const note = ws === 'all' ? '' : a.notes[ws];
+    const hit = pick && inCell(pick.r, pick.c);
+    box.innerHTML = `
+    <div class="an-block">
+      <h3>2つの観点を掛け合わせる</h3>
+      <div class="cross-ctrl">
+        <label>縦 <select id="xr">${opt('r', rd)}</select></label>
+        <label>横 <select id="xc">${opt('c', cd)}</select></label>
+        <label>言葉 <select id="xw"><option value="all">5つの言葉すべて</option>${WORDS.map(x => `<option value="${x.id}" ${x.id === ws ? 'selected' : ''}>${x.label}</option>`).join('')}</select></label>
+      </div>
+      ${note ? `<div class="notes" style="margin:0 0 18px">${esc(note)}</div>` : ''}
+      <div class="cross-wrap"><table class="an-table cross">
+        <thead><tr><th><small>${esc(rd.label)} ＼ ${esc(cd.label)}</small></th>${cols.map(c => `<th style="${segStyle(c)}"><span class="sw"></span>${esc(c.short)}</th>`).join('')}<th>計</th></tr></thead>
+        <tbody>${rows.map(r => { const n = cols.map(c => inCell(r, c).length);
+          return `<tr><th style="${segStyle(r)}"><span class="sw"></span>${esc(r.short)}</th>${cols.map((c, i) => {
+            const on = pick && pick.r === r && pick.c === c;
+            const heat = r.none || c.none ? 0 : Math.round(n[i] / max * 60);
+            return `<td><button type="button" class="${on ? 'on' : ''}" data-r="${rows.indexOf(r)}" data-c="${i}" style="--h:${heat}%" ${n[i] ? '' : 'disabled'} title="${esc(`${r.label} × ${c.label}：${n[i]}件`)}">${n[i]}</button></td>`; }).join('')}<td>${n.reduce((s, x) => s + x, 0)}</td></tr>`; }).join('')}
+        <tr class="sum"><th>計</th>${cols.map(c => `<td>${list.filter(e => catOf(e, a, cd) === c.id).length}</td>`).join('')}<td>${list.length}</td></tr>
+        </tbody></table></div>
+      <p class="sample-note" style="margin:12px 0 0">数字のマスを押すと、そこに入る解釈が下に並びます。色の濃さは件数の多さを表します。</p>
+      ${hit ? `<div class="cross-hit"><h4>${esc(pick.r.label)} × ${esc(pick.c.label)}${wd ? `（${wd.label}）` : ''} <span>${hit.length}件</span></h4>
+        ${hit.map(e => `${ws === 'all' ? `<small class="cross-w" style="color:${(wordById(e.word) || WORDS[0]).color}">${(wordById(e.word) || WORDS[0]).label}</small>` : ''}${miniCard(e)}`).join('')}</div>` : ''}
+    </div>`;
+    box.querySelector('#xr').onchange = ev => { rd = dimById(ev.target.value); if (cd === rd) cd = DIMS.find(x => x !== rd); pick = null; sync(); render(); };
+    box.querySelector('#xc').onchange = ev => { cd = dimById(ev.target.value); if (cd === rd) rd = DIMS.find(x => x !== cd); pick = null; sync(); render(); };
+    box.querySelector('#xw').onchange = ev => { ws = ev.target.value; pick = null; sync(); render(); };
+    box.querySelectorAll('.cross td button').forEach(b => b.onclick = () => {
+      const r = rows[+b.dataset.r], c = cols[+b.dataset.c];
+      pick = pick && pick.r === r && pick.c === c ? null : { r, c }; render();
+      if (pick) box.querySelector('.cross-hit').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  };
+  sync(); render();
 }
 
 function viewClassify(wid) {
@@ -1074,41 +1202,43 @@ function viewClassify(wid) {
   const list = all.filter(e => e.word === w.id);
   let onlyTodo = false; try { onlyTodo = sessionStorage.getItem('kotoba-only-todo') === '1'; } catch {}
   const src = analysisSource();
-  const count = l => l.filter(e => axisOf(e, a)).length;
+  const done = e => DIMS.every(d => catOf(e, a, d));
+  const count = (l, d) => l.filter(e => d ? catOf(e, a, d) : done(e)).length;
   const tabs = WORDS.map(x => { const l = all.filter(e => e.word === x.id);
     return `<a href="#/analysis/classify?w=${x.id}" class="${x.id === w.id ? 'on' : ''}" style="color:${x.color}">${x.label} <small style="font-family:var(--sans);font-size:11px;color:var(--sub)">${count(l)}/${l.length}</small></a>`; }).join('');
-  const btns = e => { const cur = axisOf(e, a);
-    return AXES.map(ax => `<button type="button" data-ax="${ax.id}" class="${cur === ax.id ? 'on' : ''} ${ax.mid ? 'mid' : ''}" style="${segStyle(ax)}">${esc(ax.short)}</button>`).join(''); };
+  const btns = (e, d) => { const cur = catOf(e, a, d);
+    return d.cats.map(c => `<button type="button" data-cat="${c.id}" class="${cur === c.id ? 'on' : ''} ${c.mid ? 'mid' : ''}" style="${segStyle(c)}">${esc(c.short)}</button>`).join(''); };
   const row = (e, i) => { const k = entryKey(e); const p = e.profile || {};
     const who = [p.age && (p.age + (/^\d+$/.test(p.age) ? '歳' : '')), p.gender, p.role].filter(Boolean).join('・');
-    return `<div class="cl-row ${axisOf(e, a) ? 'done' : ''}" data-k="${esc(k)}" ${onlyTodo && axisOf(e, a) ? 'hidden' : ''}>
+    return `<div class="cl-row ${done(e) ? 'done' : ''}" data-k="${esc(k)}" ${onlyTodo && done(e) ? 'hidden' : ''}>
       <div><small style="color:var(--sub);font-size:11px">No.${String(i + 1).padStart(2, '0')}</small><q>${esc(e.text)}</q>
         <div class="sub">${[e.reason, e.image && ('イメージ：' + e.image), who].filter(Boolean).map(esc).join('\n')}</div></div>
-      <div><div class="axis-btns">${btns(e)}</div>
+      <div>${DIMS.map(d => `<div class="axis-grp" data-dim="${d.id}"><small>${esc(d.label)}</small><div class="axis-btns">${btns(e, d)}</div></div>`).join('')}
         <input type="text" data-memo placeholder="分類メモ（任意・非公開）" value="${esc(a.memo[k] || '')}"></div>
     </div>`; };
+  const progText = () => DIMS.map(d => `${d.label} ${count(list, d)}/${list.length}`).join('　');
 
   app.innerHTML = `
-  <section class="fade" style="max-width:900px;margin:0 auto">
+  <section class="fade" style="max-width:940px;margin:0 auto">
     <div class="an-head"><span class="pill">分類作業（制作者用）</span>
       <h2>解釈を分類する</h2>
-      <p class="sample-note">1件ずつ読んで、軸を選んでください。もう一度押すと取り消せます。入力はすぐにこのブラウザへ保存されます。<br>
+      <p class="sample-note">1件ずつ読んで、観点ごとに項目を選んでください。もう一度押すと取り消せます。入力はすぐにこのブラウザへ保存されます。<br>
       いま使っている分類データ：<strong>${{ local: 'このブラウザで作業中のデータ', file: '同じフォルダの analysis.js', none: 'まだありません' }[src]}</strong></p>
     </div>
     <div class="an-block">
       <h3>分類の基準</h3>
-      <div class="axis-defs">${AXES.map(ax => `<div style="${segStyle(ax)}"><strong>${esc(ax.label)}</strong>${esc(ax.desc)}</div>`).join('')}</div>
+      ${DIMS.map(d => `<h4 class="dim-h">${esc(d.label)}</h4>${catDefs(d)}`).join('')}
     </div>
     <div class="word-tabs">${tabs}</div>
     <div class="an-block">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-        <h3 style="margin:0;color:${w.color}">「${w.label}」 <small id="prog" style="font-family:var(--sans);font-size:13px;color:var(--sub)">${count(list)} / ${list.length} 件 分類済み</small></h3>
-        <label style="font-size:13px"><input type="checkbox" id="todo" ${onlyTodo ? 'checked' : ''}> 未分類だけ表示</label>
+        <h3 style="margin:0;color:${w.color}">「${w.label}」 <small id="prog" style="font-family:var(--sans);font-size:12px;color:var(--sub)">${progText()}</small></h3>
+        <label style="font-size:13px"><input type="checkbox" id="todo" ${onlyTodo ? 'checked' : ''}> 未分類が残っているものだけ表示</label>
       </div>
       ${list.length ? list.map(row).join('') : '<p class="empty">この言葉の解釈はまだありません。</p>'}
     </div>
     <div class="an-block">
-      <h3>「${w.label}」の考察 <small style="font-family:var(--sans);font-size:12px;color:var(--sub)">（分析ページに表示されます）</small></h3>
+      <h3>「${w.label}」の考察 <small style="font-family:var(--sans);font-size:12px;color:var(--sub)">（分析ページで、どの観点を見ているときも「${w.label}」の欄に表示されます）</small></h3>
       <textarea id="note" placeholder="分類してみて気づいた共通点・相違点・矛盾などを書いてください">${esc(a.notes[w.id] || '')}</textarea>
     </div>
     <p style="text-align:center">
@@ -1119,19 +1249,22 @@ function viewClassify(wid) {
     <p class="sample-note" style="text-align:center">作業データはこのブラウザだけのものです。公開するときは analysis.js を書き出して index.html と同じフォルダに置き、「作業データを消す」を押してください。</p>
   </section>`;
 
-  const prog = () => document.getElementById('prog').textContent = `${count(list)} / ${list.length} 件 分類済み`;
+  const prog = () => document.getElementById('prog').textContent = progText();
   app.querySelectorAll('.cl-row').forEach(r => {
     const k = r.dataset.k; const e = list.find(x => entryKey(x) === k);
     // ボタンの外枠に1回だけ付ける（中身を描き直しても押せる）
-    r.querySelector('.axis-btns').onclick = ev => {
-      const b = ev.target.closest('[data-ax]'); if (!b) return;
-      a = loadAnalysis();
-      if (a.axis[k] === b.dataset.ax) delete a.axis[k]; else a.axis[k] = b.dataset.ax;
-      saveAnalysis(a);
-      r.querySelector('.axis-btns').innerHTML = btns(e);
-      r.classList.toggle('done', !!axisOf(e, a));
-      prog();
-    };
+    r.querySelectorAll('.axis-grp').forEach(g => {
+      const d = dimById(g.dataset.dim); const box = g.querySelector('.axis-btns');
+      box.onclick = ev => {
+        const b = ev.target.closest('[data-cat]'); if (!b) return;
+        a = loadAnalysis(); const m = dimMap(a, d.id);
+        if (m[k] === b.dataset.cat) delete m[k]; else m[k] = b.dataset.cat;
+        saveAnalysis(a);
+        box.innerHTML = btns(e, d);
+        r.classList.toggle('done', done(e));
+        prog();
+      };
+    });
     r.querySelector('[data-memo]').oninput = ev => {
       a = loadAnalysis(); const v = ev.target.value.trim();
       if (v) a.memo[k] = v; else delete a.memo[k];
@@ -1170,7 +1303,7 @@ function route() {
   else if (r === 'end') viewEnd();
   else if (r === 'about') viewAbout();
   else if (r === 'import') viewImport();
-  else if (r === 'analysis') seg[1] === 'classify' ? viewClassify(params.get('w')) : viewAnalysis(params.get('w'));
+  else if (r === 'analysis') seg[1] === 'classify' ? viewClassify(params.get('w')) : viewAnalysis(params);
   else viewCover();
   window.scrollTo(0, 0);
 }
