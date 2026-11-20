@@ -165,6 +165,7 @@
   .word-pick input { display: none; }
   .word-pick span { display: inline-block; border: 1px solid var(--line); padding: 6px 18px; border-radius: 4px; font-family: var(--serif); font-size: 16px; cursor: pointer; background: #fff; }
   .word-pick input:checked + span { background: var(--accent); color: #fff; border-color: var(--accent); }
+  form .choice-other { margin-top: 8px; }
   .color-row { display: flex; align-items: center; gap: 12px; }
   .color-row input[type=color] { width: 48px; height: 36px; border: 1px solid var(--line); border-radius: 4px; padding: 2px; background: #fff; }
   .mine-list { margin-top: 40px; border-top: 1px solid var(--line); padding-top: 24px; }
@@ -825,6 +826,16 @@ function viewSearch(q) {
   bindCards(res);
 }
 
+// 「あなたのこと」の選択肢（アンケートの Google フォームと同じ）。「その他」を選ぶと自由に書ける
+const PROFILE_CHOICES = {
+  age:    ['10代', '20代', '30代', '40代', '50代', '60代', '70代以上', 'その他', '回答しない'],
+  gender: ['女性', '男性', 'その他', '回答しない'],
+  role:   ['中学生', '高校生', '大学生', '専門学生', '大学院生', '会社員', '公務員', '自営業', 'アルバイト・パート', '現在は仕事や学業をしていない', 'その他', '回答しない'],
+};
+const choiceField = (id, label) => `<div class="row"><label for="${id}">${label}</label>
+  <select id="${id}" class="choice" required><option value="">選択してください</option>${PROFILE_CHOICES[id].map(c => `<option>${c}</option>`).join('')}</select>
+  <input type="text" id="${id}Other" class="choice-other" placeholder="自由に書いてください" hidden></div>`;
+
 function viewAdd(preWord) {
   const mine = loadMine();
   app.innerHTML = `
@@ -841,15 +852,15 @@ function viewAdd(preWord) {
       <div class="row"><label for="image">色・形・風景・音・手触りを思い浮かべるとしたら <small>（任意）</small></label>
         <div class="color-row"><input type="color" id="color" value="#8fb3bd"><input type="text" id="image" placeholder="例：夕方の橙色、湯のみの温度"></div></div>
       <div class="row"><label for="tags">キーワード <small>（任意・読点やスペースで区切る）</small></label><input type="text" id="tags" placeholder="例：安心、ひとり"></div>
-      <fieldset><legend>あなたのこと（カードの裏面に表示されます・すべて任意）</legend>
-        <div class="row"><label for="name">ペンネーム</label><input type="text" id="name" placeholder="個人が特定できないものにしてください"></div>
+      <fieldset><legend>あなたのこと（カードの裏面に表示されます）</legend>
+        <div class="row"><label for="name">ペンネーム</label><input type="text" id="name" required placeholder="個人が特定できないものにしてください"></div>
         <div class="cols">
-          <div class="row"><label for="age">年齢</label><input type="text" id="age"></div>
-          <div class="row"><label for="gender">性別</label><input type="text" id="gender"></div>
+          ${choiceField('age', '年代')}
+          ${choiceField('gender', '性別')}
         </div>
-        <div class="row"><label for="role">立場（仕事など）</label><input type="text" id="role"></div>
-        <div class="row"><label for="interest">今もっとも関心を寄せていること</label><input type="text" id="interest"></div>
-        <div class="row"><label for="self">今の自分をもっともよく表す言葉</label><input type="text" id="self"></div>
+        ${choiceField('role', '立場（仕事など）')}
+        <div class="row"><label for="interest">今もっとも関心を寄せていること <small>（任意）</small></label><input type="text" id="interest"></div>
+        <div class="row"><label for="self">今の自分をもっともよく表す言葉 <small>（任意）</small></label><input type="text" id="self"></div>
       </fieldset>
       ${canPost() ? `<div class="row"><label style="font-weight:400"><input type="checkbox" id="consent" required> <a href="#/about" target="_blank">掲載について</a>を読み、入力した内容が辞書に掲載されることに同意します</label></div>` : ''}
       <button class="btn fill" type="submit" id="submitBtn">${canPost() ? '送る' : '辞書にくわえる'}</button>
@@ -865,13 +876,18 @@ function viewAdd(preWord) {
       const r = app.querySelector(`input[name=word][value="${d.word}"]`); if (r) r.checked = true; }
     sessionStorage.removeItem(DRAFT_KEY); } catch {}
   const v = id => document.getElementById(id).value.trim();
+  // 選択式の項目：「その他」を選んだときは、書いた内容（空なら「その他」）
+  const choice = id => v(id) === 'その他' ? (v(id + 'Other') || 'その他') : v(id);
+  app.querySelectorAll('select.choice').forEach(sel => sel.onchange = () => {
+    const o = document.getElementById(sel.id + 'Other'); o.hidden = sel.value !== 'その他'; if (!o.hidden) o.focus();
+  });
   document.getElementById('af').onsubmit = async ev => {
     ev.preventDefault();
     const word = app.querySelector('input[name=word]:checked').value;
     const entry = {
       word, text: v('text'), reason: v('reason'), image: v('image'), color: document.getElementById('color').value,
       tags: v('tags').split(/[、,，\s]+/).filter(Boolean),
-      profile: { name: v('name'), age: v('age'), gender: v('gender'), role: v('role'), interest: v('interest'), self: v('self') },
+      profile: { name: v('name'), age: choice('age'), gender: choice('gender'), role: choice('role'), interest: v('interest'), self: v('self') },
       id: 'u' + Date.now(), createdAt: new Date().toISOString(),
     };
     if (!entry.text) return;
