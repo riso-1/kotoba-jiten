@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ことばの解釈辞典（試作）</title>
+<title>ことばの解釈辞典</title>
 <style>
   :root {
     --ink: #333a3d;
@@ -272,7 +272,7 @@
   </nav>
 </header>
 <main id="app"></main>
-<footer>女子美術大学 共創デザイン学科 卒業研究「言葉の解釈の違いから、他者を知る」 ― 試作版　<a href="#/about" style="color:inherit">掲載について</a>　<a href="#/import" style="color:inherit">データ取り込み</a>　<a href="#/analysis/classify" style="color:inherit">分類作業</a></footer>
+<footer>女子美術大学 共創デザイン学科 卒業研究「言葉の解釈の違いから、他者を知る」　<a href="#/about" style="color:inherit">掲載について</a></footer>
 
 <!-- 本番データ（任意）。同じフォルダに data.js があれば読み込まれ、なければ無視されます -->
 <script src="data.js" onerror="this.remove()"></script>
@@ -771,7 +771,7 @@ function viewAdd(preWord) {
     <h2>あなたの解釈をくわえる</h2>
     <p class="sample-note">${canPost()
       ? '送っていただいた解釈は、内容を確認したのち、辞書に掲載されます（匿名・本名や連絡先はお聞きしません）。掲載されるまでは、このブラウザにだけ「確認待ち」として表示されます。'
-      : '入力した内容は、このブラウザの中だけに保存されます（試作版）。'}</p>
+      : '入力した内容は、このブラウザの中だけに保存されます。'}</p>
     <form id="af">
       <div class="row"><label>言葉をえらぶ</label>
         <div class="word-pick">${WORDS.map((w, i) => `<label><input type="radio" name="word" value="${w.id}" ${(preWord ? preWord === w.id : i === 0) ? 'checked' : ''}><span>${w.label}</span></label>`).join('')}</div></div>
@@ -839,7 +839,7 @@ function viewAdd(preWord) {
    CONTACT に連絡先（メールアドレスやお問い合わせフォームのURL）を入れると、
    「掲載の取り下げ・お問い合わせ」に表示される。空のままなら制作者名のみ表示
    ========================================================= */
-const CONTACT = { label: '', url: '' };
+const CONTACT = { label: 'お問い合わせフォーム', url: 'https://docs.google.com/forms/d/e/1FAIpQLSfXaMf4-SjyXenTnP3bi9lK-E2WjipIkr4c6GrWquLJlKZzyg/viewform' };
 function viewAbout() {
   const contact = CONTACT.url
     ? `<p>下記までご連絡ください。<br><a href="${esc(CONTACT.url)}" target="_blank" rel="noopener">${esc(CONTACT.label || CONTACT.url)}</a></p>`
