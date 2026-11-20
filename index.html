@@ -241,6 +241,17 @@
     .an-block { padding: 20px 18px; }
   }
 
+  .overview summary { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; cursor: pointer; list-style: none; }
+  .overview summary::-webkit-details-marker { display: none; }
+  .overview summary h3 { margin: 0; }
+  .overview summary h3::before { content: "▸"; display: inline-block; width: 1.2em; color: var(--sub); transition: transform .15s ease; }
+  .overview[open] summary h3::before { transform: rotate(90deg); }
+  .overview summary span { font-size: 12px; color: var(--sub); }
+  .overview dl { display: grid; grid-template-columns: 4em 1fr; gap: 8px 14px; margin: 16px 0 0; font-size: 13px; }
+  .overview dt { color: var(--sub); }
+  .overview dd { margin: 0; }
+  .an-block.summary { border-top: 4px solid var(--accent); }
+
   /* ---- people ---- */
   .people-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
   .person-tile { display: flex; flex-direction: column; gap: 6px; background: var(--paper); border-radius: 6px; box-shadow: 0 2px 14px rgba(40,60,70,.06); padding: 18px 18px 14px; text-decoration: none; color: var(--ink); transition: transform .15s ease; }
@@ -1095,8 +1106,16 @@ function viewImport() {
      axis     : 「自分と他者」の分類（最初の観点。以前のファイルと同じ形）
      dims     : それ以外の観点の分類 { 観点id: { 解釈の鍵: 項目id } }
      notes    : 言葉ごとの考察 { 言葉id: 文 }（観点に分けず、言葉ごとに1つ）
+     summary  : 分析全体のまとめ（文）
      memo     : 分類メモ（非公開）
    ========================================================= */
+// 調査の概要（分析ページの最初に表示）。回答者数・内訳はデータから自動で数える
+const SURVEY = {
+  method: 'Google フォームによるオンラインアンケート',
+  period: '2026年10月23日〜11月12日',
+  classify: '分類は制作者が、観点ごとの基準に沿って行い、ひとつの解釈を観点ごとにひとつの項目に分けました。「具体と抽象」「肯定と否定」は、解釈の本文（理由やイメージの欄を除く）をもとに判断しています。',
+  caution: '回答者の多くは20代の女性・大学生です。この結果は、ここに集まった回答の傾向であり、世の中一般の傾向を示すものではありません。',
+};
 const DIMS = [
   { id: 'center', label: '自分と他者',
     intro: 'その言葉が<strong>自分</strong>を中心に語られているか、<strong>他者や社会</strong>を中心に語られているか。',
@@ -1131,9 +1150,10 @@ const DIMS = [
 ];
 const dimById = id => DIMS.find(d => d.id === id);
 const ANALYSIS_KEY = 'kotoba-jiten-analysis-v1';
-const emptyAnalysis = () => ({ axis: {}, dims: {}, memo: {}, notes: {} });
+const emptyAnalysis = () => ({ axis: {}, dims: {}, memo: {}, notes: {}, summary: '' });
 const normAnalysis = o => { const a = { ...emptyAnalysis(), ...o };
   ['axis', 'dims', 'memo', 'notes'].forEach(k => { if (!a[k] || typeof a[k] !== 'object') a[k] = {}; });
+  if (typeof a.summary !== 'string') a.summary = '';
   return a; };
 const fileAnalysis = () => {
   const f = window.KOTOBA_ANALYSIS;
@@ -1233,14 +1253,39 @@ function viewAnalysis(params) {
        <p class="empty">「${esc(d.label)}」の分類はまだありません。<br><a href="#/analysis/classify?w=${w.id}">分類作業の画面</a>で、解釈を分類してください。</p>`;
   } else body = `<div id="cross"></div>`;
 
+  // 調査の概要：回答者の内訳はプロフィールから数える（「回答しない」は最後）
+  const ppl = people();
+  const tally = k => { const m = new Map();
+    ppl.forEach(x => { const v = String(x.profile[k] || '回答しない').trim() || '回答しない'; m.set(v, (m.get(v) || 0) + 1); });
+    return [...m].sort((a, b) => (a[0] === '回答しない') - (b[0] === '回答しない') || (k === 'age' ? a[0].localeCompare(b[0], 'ja', { numeric: true }) : b[1] - a[1]))
+      .map(([v, n]) => `${esc(v)} ${n}人`).join('、'); };
+  const overview = `
+    <details class="an-block overview">
+      <summary><h3>調査の概要</h3><span>${ppl.length}人・${all.length}件の解釈</span></summary>
+      <dl>
+        <dt>方法</dt><dd>${esc(SURVEY.method)}</dd>
+        <dt>期間</dt><dd>${esc(SURVEY.period)}</dd>
+        <dt>回答</dt><dd>${ppl.length}人（5つの言葉の解釈 ${all.length}件）</dd>
+        <dt>年代</dt><dd>${tally('age')}</dd>
+        <dt>性別</dt><dd>${tally('gender')}</dd>
+        <dt>立場</dt><dd>${tally('role')}</dd>
+        <dt>分類</dt><dd>${esc(SURVEY.classify)}</dd>
+      </dl>
+      <p class="sample-note" style="margin:12px 0 0">※ ${esc(SURVEY.caution)}</p>
+    </details>`;
+  const summary = a.summary && a.summary.trim() ? `
+    <div class="an-block summary"><h3>まとめ</h3><div class="notes">${esc(a.summary)}</div></div>` : '';
+
   app.innerHTML = `
   <section class="fade">
     <div class="an-head"><span class="pill">分析</span>
       <h2>解釈の「軸」をくらべる</h2>
       <p class="sample-note">アンケートで集まった解釈を、${DIMS.length}つの観点で分類しました。同じ言葉でも、どこに軸を置くかは人によって異なります。「掛け合わせ」では、2つの観点を組み合わせて見ることができます。</p>
     </div>
+    ${overview}
     ${any ? `<div class="dim-tabs">${dimTabs}</div>` : ''}
     ${body}
+    ${summary}
     <p class="sample-note" style="text-align:center;margin-top:30px"><a href="#/analysis/classify?w=${w.id}">分類作業（制作者用）</a></p>
   </section>`;
   if (any && isCross) crossView(all, a, params);
@@ -1347,6 +1392,10 @@ function viewClassify(wid) {
       <h3>「${w.label}」の考察 <small style="font-family:var(--sans);font-size:12px;color:var(--sub)">（分析ページで、どの観点を見ているときも「${w.label}」の欄に表示されます）</small></h3>
       <textarea id="note" placeholder="分類してみて気づいた共通点・相違点・矛盾などを書いてください">${esc(a.notes[w.id] || '')}</textarea>
     </div>
+    <div class="an-block">
+      <h3>分析全体のまとめ <small style="font-family:var(--sans);font-size:12px;color:var(--sub)">（分析ページのいちばん下に、どの観点を見ているときも表示されます）</small></h3>
+      <textarea id="summary" style="min-height:200px" placeholder="5つの言葉と3つの観点を通して見えてきたこと、言葉の解釈の違いから他者を知ることについて考えたことを書いてください">${esc(a.summary || '')}</textarea>
+    </div>
     <p style="text-align:center">
       <button class="btn fill" id="exp" type="button">analysis.js を書き出す</button>
       <a class="btn" href="#/analysis?w=${w.id}">分析ページで確認する</a>
@@ -1381,6 +1430,10 @@ function viewClassify(wid) {
   document.getElementById('note').oninput = ev => {
     a = loadAnalysis(); const v = ev.target.value;
     if (v.trim()) a.notes[w.id] = v; else delete a.notes[w.id];
+    saveAnalysis(a);
+  };
+  document.getElementById('summary').oninput = ev => {
+    a = loadAnalysis(); a.summary = ev.target.value.trim() ? ev.target.value : '';
     saveAnalysis(a);
   };
   document.getElementById('exp').onclick = () => downloadAnalysisJs(loadAnalysis());
