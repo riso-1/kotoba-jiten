@@ -241,6 +241,35 @@
     .an-block { padding: 20px 18px; }
   }
 
+  /* ---- people ---- */
+  .people-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+  .person-tile { display: flex; flex-direction: column; gap: 6px; background: var(--paper); border-radius: 6px; box-shadow: 0 2px 14px rgba(40,60,70,.06); padding: 18px 18px 14px; text-decoration: none; color: var(--ink); transition: transform .15s ease; }
+  .person-tile:hover { transform: translateY(-2px); }
+  .person-tile .self { font-family: var(--serif); font-size: 20px; line-height: 1.4; }
+  .person-head .self small { display: block; font-family: var(--sans); font-size: 11px; color: var(--sub); }
+  .person-tile .who { font-size: 12px; color: var(--sub); }
+  .person-tile .dots { display: flex; gap: 4px; margin-top: auto; padding-top: 8px; }
+  .person-tile .dots span { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+  .person-tile .dots span.off { background: #e5ebed; }
+  .person-head { background: var(--paper); border-radius: 6px; box-shadow: 0 2px 14px rgba(40,60,70,.06); padding: 26px 30px; margin: 0 0 26px; display: grid; grid-template-columns: 1fr auto; gap: 18px 30px; align-items: center; }
+  .person-head h2 { font-family: var(--serif); font-weight: 500; font-size: 26px; letter-spacing: .12em; margin: 0 0 8px; }
+  .person-head dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin: 0; font-size: 14px; }
+  .person-head dt { color: var(--sub); font-size: 12px; padding-top: 2px; }
+  .person-head dd { margin: 0; }
+  .person-head .self { text-align: center; padding: 14px 22px; border: 1px solid var(--line); border-radius: 4px; font-family: var(--serif); font-size: 22px; }
+  .person-entry { background: var(--paper); border-radius: 6px; box-shadow: 0 2px 14px rgba(40,60,70,.06); border-left: 6px solid var(--c); padding: 22px 28px; margin: 0 0 18px; }
+  .person-entry h3 { margin: 0 0 8px; font-family: var(--serif); font-weight: 500; font-size: 15px; letter-spacing: .12em; }
+  .person-entry h3 a { color: var(--c); text-decoration: none; }
+  .person-entry blockquote { margin: 0 0 10px; font-family: var(--serif); font-size: 20px; line-height: 1.7; white-space: pre-line; }
+  .person-entry .reason { margin: 0 0 8px; font-size: 14px; white-space: pre-line; }
+  .person-entry .image { font-size: 13px; color: var(--sub); white-space: pre-line; }
+  .person-entry.none { border-left-color: #e5ebed; color: var(--sub); font-size: 13px; padding: 14px 28px; }
+  .to-person { display: inline-block; margin-top: 12px; font-size: 13px; color: var(--accent); }
+  @media (max-width: 760px) {
+    .person-head { grid-template-columns: 1fr; padding: 20px 18px; }
+    .person-entry { padding: 18px; }
+  }
+
   /* ---- voices ---- */
   .voice q { white-space: pre-line; }
 
@@ -264,6 +293,7 @@
     <a href="#/intro" data-r="intro">はじめに</a>
     <a href="#/word/futsu" data-r="word">辞書をひらく</a>
     <a href="#/search" data-r="search">逆引き</a>
+    <a href="#/people" data-r="people">人から読む</a>
     <a href="#/add" data-r="add">解釈をくわえる</a>
     <a href="#/analysis" data-r="analysis">分析</a>
     <a href="#/voices" data-r="voices">ことばの声</a>
@@ -628,6 +658,7 @@ function cardHTML(e, no, showWord) {
         <div class="no"><span>この解釈を考えた人</span></div>
         <dl>${row('ペンネーム', p.name)}${row('年齢', p.age && (p.age + (/^\d+$/.test(p.age) ? '歳' : '')))}${row('性別', p.gender)}${row('立場', p.role)}${row('いま関心のあること', p.interest)}</dl>
         ${p.self ? `<div class="self"><small>今の自分を表す言葉</small><span>${esc(p.self)}</span></div>` : ''}
+        ${personOf(e) ? `<a class="to-person" href="#/people/${personOf(e).no}">この人の5つの解釈を読む →</a>` : ''}
         <div class="hint" style="margin-top:auto">← 解釈にもどる</div>
       </div>
     </div>
@@ -636,7 +667,7 @@ function cardHTML(e, no, showWord) {
 function bindCards(root = app) {
   root.querySelectorAll('.card').forEach(c => {
     const flip = () => c.classList.toggle('flipped');
-    c.addEventListener('click', flip);
+    c.addEventListener('click', ev => { if (!ev.target.closest('a')) flip(); });
     c.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); flip(); } });
   });
 }
@@ -672,7 +703,7 @@ function viewIntro() {
     <p>私たちは同じ言葉を使いながらも、それぞれ異なる経験や価値観を通して、その言葉を解釈しています。</p>
     <p>一般的な辞書は、言葉の意味を整理し、誰もが共有できる定義を示します。けれどこの辞書は、さまざまな解釈をひとつの定義にまとめることを目的としていません。</p>
     <p>ここには、互いに異なる解釈や、ときに矛盾するような解釈が、そのまま並んでいます。<strong>正解を探すための辞書ではありません。</strong></p>
-    <p>カードをめくると、その解釈を考えた人のことが少しだけわかります。自分とは違う誰かの世界に触れながら、違いを違いのまま受け止めることについて、考えてみてください。</p>
+    <p>カードをめくると、その解釈を考えた人のことが少しだけわかります。「人から読む」では、ひとりの人が5つの言葉をどう解釈したかを、続けて読むことができます。自分とは違う誰かの世界に触れながら、違いを違いのまま受け止めることについて、考えてみてください。</p>
     <p style="margin-top:2em"><a class="btn fill" href="#/word/${WORDS[0].id}">辞書をひらく</a></p>
   </article>`;
 }
@@ -856,6 +887,7 @@ function viewAbout() {
       <li>「ことばの声」には、言葉そのものについての設問への回答を原文のまま掲載しています。「ある」「なし」などの短い回答と、制作者個人へのメッセージは省略しています。</li>
       <li>逆引き用のキーワードは、文章中の表現から自動で付けています。回答者が付けたものではありません。</li>
       <li>カードの裏面には、回答者が入力したペンネーム・年代・立場などを表示しています。本名や連絡先はお聞きしていません。</li>
+      <li>「人から読む」では、アンケートの同じ回答者による5つの言葉の解釈を、まとめて並べています。</li>
     </ul>
 
     <h3>解釈を投稿するとき</h3>
@@ -884,6 +916,80 @@ function viewAbout() {
 
     <p style="margin-top:2.4em"><a class="btn fill" href="#/add">あなたの解釈をくわえる</a>　<a class="btn" href="#/">表紙へもどる</a></p>
   </article>`;
+}
+
+/* =========================================================
+   人から読む：同じ回答者の解釈を並べる
+   アンケートの回答だけを、プロフィール（ペンネーム・年代・性別・立場・関心・今の自分を表す言葉）が
+   すべて同じものを同じ人としてまとめる。番号は data.js に出てくる順。
+   ========================================================= */
+const shown = v => v && v !== '回答しない' ? v : '';
+const personSig = e => { const p = e.profile || {};
+  return JSON.stringify(['name', 'age', 'gender', 'role', 'interest', 'self'].map(k => String(p[k] ?? '').trim())); };
+let peopleCache = null;
+function people() {
+  const src = allEntries().filter(e => !e.mine && !e.posted);
+  if (peopleCache && peopleCache.src === src.length) return peopleCache.list;
+  const map = new Map();
+  src.forEach(e => { const k = personSig(e); if (!map.has(k)) map.set(k, { no: map.size + 1, sig: k, profile: e.profile || {}, entries: [] }); map.get(k).entries.push(e); });
+  const list = [...map.values()];
+  peopleCache = { src: src.length, list };
+  return list;
+}
+const personOf = e => (e.mine || e.posted) ? null : people().find(x => x.sig === personSig(e)) || null;
+const personName = p => shown(p.name) || 'ペンネームなし';
+const personWho = p => [p.age && (p.age + (/^\d+$/.test(p.age) ? '歳' : '')), p.role].map(shown).filter(Boolean).join('・');
+
+function viewPeople() {
+  const list = people();
+  app.innerHTML = `
+  <section class="fade">
+    <div class="an-head"><span class="pill">人から読む</span>
+      <h2>ひとりの、5つの解釈</h2>
+      <p class="sample-note">アンケートに答えてくれた${list.length}人が、5つの言葉をそれぞれどう解釈したかを、人ごとに並べました。言葉ごとに読むときとは違って、その人の考え方の筋道や、言葉どうしのつながりが見えてきます。大きな文字は、その人が答えた「今の自分を表す言葉」です。</p>
+    </div>
+    ${list.length ? `<div class="people-grid">${list.map(x => { const p = x.profile;
+      return `<a class="person-tile" href="#/people/${x.no}">
+        <span class="self">${esc(shown(p.self) || '―')}</span>
+        <span class="who">${esc(personName(p))}${personWho(p) ? '　' + esc(personWho(p)) : ''}</span>
+        <span class="dots">${WORDS.map(w => `<span class="${x.entries.some(e => e.word === w.id) ? '' : 'off'}" style="--c:${w.color}" title="${w.label}"></span>`).join('')}</span>
+      </a>`; }).join('')}</div>` : '<p class="empty">まだ回答はありません。</p>'}
+  </section>`;
+}
+
+function viewPerson(no) {
+  const list = people();
+  const i = list.findIndex(x => String(x.no) === String(no));
+  if (i < 0) { viewPeople(); return; }
+  const x = list[i]; const p = x.profile;
+  const row = (k, v) => shown(v) ? `<dt>${k}</dt><dd>${esc(v)}</dd>` : '';
+  const go = n => { if (list[n]) location.hash = '#/people/' + list[n].no; };
+  app.innerHTML = `
+  <section class="fade" style="max-width:800px;margin:0 auto">
+    <p class="sample-note" style="margin:0 0 14px"><a href="#/people">← 人から読む</a></p>
+    <div class="person-head">
+      <div>
+        <h2>${esc(personName(p))}</h2>
+        <dl>${row('年齢', p.age && (p.age + (/^\d+$/.test(p.age) ? '歳' : '')))}${row('性別', p.gender)}${row('立場', p.role)}${row('いま関心のあること', p.interest)}</dl>
+      </div>
+      ${shown(p.self) ? `<div class="self"><small>今の自分を表す言葉</small>${esc(p.self)}</div>` : ''}
+    </div>
+    ${WORDS.map(w => { const e = x.entries.find(v => v.word === w.id);
+      return e ? `<div class="person-entry" style="--c:${esc(e.color || w.color)}">
+        <h3><a href="#/word/${w.id}">「${w.label}」</a></h3>
+        <blockquote>${esc(e.text)}</blockquote>
+        ${e.reason ? `<p class="reason">${esc(e.reason)}</p>` : ''}
+        ${e.image ? `<div class="image">イメージ：${esc(e.image)}</div>` : ''}
+      </div>` : `<div class="person-entry none">「${w.label}」には回答がありません。</div>`; }).join('')}
+    <div class="reader-nav">
+      <button id="prev" ${i === 0 ? 'disabled' : ''} aria-label="前の人">‹</button>
+      <span>${i + 1} / ${list.length}</span>
+      <button id="next" ${i === list.length - 1 ? 'disabled' : ''} aria-label="次の人">›</button>
+    </div>
+  </section>`;
+  document.getElementById('prev').onclick = () => go(i - 1);
+  document.getElementById('next').onclick = () => go(i + 1);
+  document.onkeydown = ev => { if (ev.key === 'ArrowLeft') go(i - 1); if (ev.key === 'ArrowRight') go(i + 1); };
 }
 
 function viewEnd() {
@@ -1300,6 +1406,7 @@ function route() {
   else if (r === 'search') viewSearch(params.get('q') || '');
   else if (r === 'add') viewAdd(params.get('word'));
   else if (r === 'voices') viewVoices();
+  else if (r === 'people') seg[1] ? viewPerson(seg[1]) : viewPeople();
   else if (r === 'end') viewEnd();
   else if (r === 'about') viewAbout();
   else if (r === 'import') viewImport();
