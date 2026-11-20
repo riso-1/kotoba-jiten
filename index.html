@@ -35,7 +35,7 @@
     padding: 14px 28px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.75);
     backdrop-filter: blur(6px); position: sticky; top: 0; z-index: 10;
   }
-  header.site .logo { font-family: var(--serif); font-size: 18px; text-decoration: none; letter-spacing: .12em; }
+  header.site .logo { font-family: var(--serif); font-size: 18px; text-decoration: none; letter-spacing: .12em; white-space: nowrap; flex-shrink: 0; }
   header.site nav { display: flex; gap: 4px; flex-wrap: wrap; }
   header.site nav a {
     text-decoration: none; font-size: 13px; padding: 4px 12px; border-radius: 999px; color: var(--sub);
@@ -170,6 +170,8 @@
   .mine-list { margin-top: 40px; border-top: 1px solid var(--line); padding-top: 24px; }
   .mine-list .item { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
   .mine-list .item button { border: none; background: none; color: #b0625a; font-size: 12px; }
+  .mine-list .item-btns { display: flex; gap: 4px; flex-shrink: 0; align-items: flex-start; }
+  .mine-list .item button[data-cmp] { color: var(--accent); }
   .toast { position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%); background: var(--accent); color: #fff; padding: 10px 24px; border-radius: 999px; font-size: 14px; animation: fade .3s ease; z-index: 20; }
 
   /* ---- analysis ---- */
@@ -257,6 +259,7 @@
   .cmp-form label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px; }
   .cmp-form .word-pick label { display: inline-block; margin: 0; font-weight: 400; }
   .cmp-form textarea { min-height: 80px; }
+  .cmp-form select { width: 100%; font: inherit; font-size: 14px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 4px; background: #fff; }
   .cmp-pick span { font-family: var(--sans); font-size: 14px; padding: 6px 14px; }
   .cmp-dim { margin-bottom: 14px; }
   .cmp-dim-h { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; font-size: 13px; margin-bottom: 6px; }
@@ -852,7 +855,7 @@ function viewAdd(preWord) {
       <button class="btn fill" type="submit" id="submitBtn">${canPost() ? '送る' : '辞書にくわえる'}</button>
     </form>
     ${mine.length ? `<div class="mine-list"><strong style="font-size:14px">あなたがくわえた解釈（${mine.length}）</strong>
-      ${mine.map((e, i) => `<div class="item"><span>「${wordById(e.word).label}」${esc(e.text)}${e.sent ? ` <small style="color:var(--sub)">${allEntries().some(x => x.mine && x.id === e.id) ? '（確認待ち）' : '（掲載済み）'}</small>` : ''}</span><button data-del="${i}">削除</button></div>`).join('')}
+      ${mine.map((e, i) => `<div class="item"><span>「${wordById(e.word).label}」${esc(e.text)}${e.sent ? ` <small style="color:var(--sub)">${allEntries().some(x => x.mine && x.id === e.id) ? '（確認待ち）' : '（掲載済み）'}</small>` : ''}</span><span class="item-btns"><button type="button" data-cmp="${i}">くらべる</button><button data-del="${i}">削除</button></span></div>`).join('')}
       ${mine.some(e => e.sent) ? `<p class="sample-note" style="margin:8px 0 0">※ ここで削除しても、送信済みの内容は取り消されません。取り消したいときは<a href="#/about">掲載について</a>の「掲載の取り下げ」をご覧ください。</p>` : ''}
       <p style="margin-top:16px"><button class="btn" id="export" type="button">JSONで書き出す</button></p></div>` : ''}
   </article>`;
@@ -886,6 +889,11 @@ function viewAdd(preWord) {
     }
     location.hash = '#/word/' + word;
   };
+  app.querySelectorAll('[data-cmp]').forEach(b => b.onclick = () => {
+    const e = loadMine()[+b.dataset.cmp]; if (!e) return;
+    try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ word: e.word, text: e.text })); } catch {}
+    location.hash = '#/compare?word=' + e.word;
+  });
   app.querySelectorAll('[data-del]').forEach(b => b.onclick = () => {
     if (!confirm('この解釈を削除しますか？')) return;
     const list = loadMine(); list.splice(+b.dataset.del, 1); saveMine(list); viewAdd(preWord);
@@ -1035,6 +1043,7 @@ const COMPARE_Q = {
   tone:     { q: 'その言葉を、どう感じていますか', opts: ['良いもの・大切なもの', 'どちらとも言えない', '良くない面もある'] },
 };
 const DRAFT_KEY = 'kotoba-compare-draft';
+let refreshComparePicker = null;
 const bigrams = t => { const c = String(t).replace(/[\s、。，．,.!?！？「」『』（）()・…ー〜~]/g, ''); const b = new Set();
   for (let i = 0; i < c.length - 1; i++) b.add(c.slice(i, i + 2)); if (c.length === 1) b.add(c); return b; };
 const textSim = (x, y) => { const a = bigrams(x), b = bigrams(y); if (!a.size || !b.size) return 0;
@@ -1042,18 +1051,21 @@ const textSim = (x, y) => { const a = bigrams(x), b = bigrams(y); if (!a.size ||
 
 function viewCompare(preWord) {
   const a = loadAnalysis();
-  let draft = {}; try { draft = JSON.parse(sessionStorage.getItem(DRAFT_KEY)) || {}; } catch {}
+  let draft = {}; try { draft = JSON.parse(sessionStorage.getItem(DRAFT_KEY)) || {}; sessionStorage.removeItem(DRAFT_KEY); } catch {}
   const w0 = wordById(preWord) || wordById(draft.word) || WORDS[0];
   app.innerHTML = `
   <section class="fade" style="max-width:800px;margin:0 auto">
     <div class="an-head"><span class="pill">くらべる</span>
       <h2>あなたの解釈とくらべる</h2>
-      <p class="sample-note">あなたの解釈を書いて、3つの問いに答えると、アンケートで集まった解釈のなかで、あなたと近い解釈・遠い解釈が見つかります。分析ページと同じ観点を使っています。<br>
+      <p class="sample-note">あなたの解釈を書いて、3つの問いに答えると、投稿された解釈のなかで、あなたと近い解釈・遠い解釈が見つかります。分析ページと同じ観点を使っています。<br>
       この画面に入力した内容は、保存も送信もされません。</p>
     </div>
     <form id="cf" class="an-block cmp-form">
       <div class="row"><label>言葉をえらぶ</label>
         <div class="word-pick">${WORDS.map(w => `<label><input type="radio" name="word" value="${w.id}" ${w.id === w0.id ? 'checked' : ''}><span>${w.label}</span></label>`).join('')}</div></div>
+      <div class="row" id="cpickRow"><label for="cpick">投稿された解釈から選ぶ <small>（任意）</small></label>
+        <select id="cpick"></select>
+        <p class="sample-note" style="margin:6px 0 0">解釈を投稿したことのある方は、自分の解釈を選んでくらべられます。選ぶと、分析での分類が下の問いに入ります（変えることもできます）。</p></div>
       <div class="row"><label for="ctext">あなたにとって、その言葉とはどのようなものですか？ <small>（任意）</small></label>
         <textarea id="ctext" placeholder="書くと、ことばの近い解釈も探します">${esc(draft.text || '')}</textarea></div>
       ${DIMS.map(d => `<div class="row"><label>${esc(COMPARE_Q[d.id].q)}</label>
@@ -1064,12 +1076,44 @@ function viewCompare(preWord) {
   </section>`;
 
   const form = document.getElementById('cf');
+  // 投稿された解釈から選べる（「言葉をえらぶ」で選んでいる言葉の解釈だけを並べる）
+  // このブラウザから投稿した解釈を先頭に、そのあとに辞書に載っている解釈
+  const short = t => { t = String(t).replace(/\s+/g, ' ').trim(); return t.length > 26 ? t.slice(0, 26) + '…' : t; };
+  const curWord = () => form.querySelector('input[name=word]:checked').value;
+  const fillPicker = () => {
+    const sel = document.getElementById('cpick'); if (!sel) return;
+    const keep = sel.value && pickList[+sel.value];
+    const word = curWord();
+    const mine = loadMine().filter(validEntry).filter(e => e.word === word);
+    const others = [...analysisEntries(), ...remoteEntries.filter(validEntry)]
+      .filter(e => e.word === word && !mine.some(m => sameEntry(m, e)));
+    pickList = [...mine, ...others];
+    const opt = (e, k, mark) => { const nm = shown((e.profile || {}).name);
+      return `<option value="${k}" ${keep === e ? 'selected' : ''}>${esc(short(e.text))}${mark ? '（あなたの投稿）' : nm ? `（${esc(nm)}）` : ''}</option>`; };
+    sel.innerHTML = `<option value="">選ばずに書く</option>${pickList.map((e, k) => opt(e, k, k < mine.length)).join('')}`;
+    if (keep && !pickList.includes(keep)) picked = null;
+  };
+  let pickList = [];
+  let picked = null;
+  fillPicker();
+  refreshComparePicker = fillPicker;
+  form.querySelectorAll('input[name=word]').forEach(r => r.onchange = () => { picked = null; fillPicker(); });
+  document.getElementById('cpick').onchange = ev => {
+    const e = pickList[+ev.target.value]; picked = ev.target.value === '' ? null : e || null;
+    if (!picked) return;
+    document.getElementById('ctext').value = e.text;
+    // 分析で分類している解釈なら、その分類を問いの答えに入れる
+    DIMS.forEach(d => { const c = (!e.mine && !e.posted) ? catOf(e, a, d) : null;
+      form.querySelectorAll(`input[name=${d.id}]`).forEach(x => { x.checked = !!c && x.value === c; }); });
+  };
   form.onsubmit = ev => {
     ev.preventDefault();
     const word = form.querySelector('input[name=word]:checked').value; const w = wordById(word);
     const text = document.getElementById('ctext').value.trim();
     const mine = Object.fromEntries(DIMS.map(d => [d.id, form.querySelector(`input[name=${d.id}]:checked`).value]));
-    const list = analysisEntries().filter(e => e.word === word && DIMS.every(d => catOf(e, a, d)));
+    // 選んだ解釈そのものは、くらべる相手から外す
+    const list = analysisEntries().filter(e => e.word === word && DIMS.every(d => catOf(e, a, d))
+      && !(picked && picked.word === word && entryKey(picked) === entryKey(e)));
     const res = document.getElementById('cres');
     if (!list.length) { res.innerHTML = `<p class="empty">「${w.label}」はまだ分類されていないため、くらべられません。</p>`; return; }
     const idx = (d, id) => d.cats.findIndex(c => c.id === id);
@@ -1562,6 +1606,7 @@ function viewClassify(wid) {
    ========================================================= */
 function route() {
   document.onkeydown = null;
+  refreshComparePicker = null;
   const [path, query] = location.hash.replace(/^#/, '').split('?');
   const params = new URLSearchParams(query || '');
   const seg = (path || '/').split('/').filter(Boolean);
@@ -1585,7 +1630,9 @@ window.addEventListener('hashchange', route);
 route();
 // 掲載済みの投稿を読み込めたら描き直す（入力中のフォームは消さない）
 loadRemote().then(ok => {
-  if (ok && remoteEntries.length && !/^#\/(add|analysis\/classify)/.test(location.hash)) route();
+  if (!ok || !remoteEntries.length) return;
+  if (/^#\/compare/.test(location.hash)) { if (refreshComparePicker) refreshComparePicker(); }
+  else if (!/^#\/(add|analysis\/classify)/.test(location.hash)) route();
 });
 </script>
 </body>
