@@ -252,6 +252,21 @@
   .overview dd { margin: 0; }
   .an-block.summary { border-top: 4px solid var(--accent); }
 
+  /* ---- compare ---- */
+  .cmp-form .row { margin-bottom: 18px; }
+  .cmp-form label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .cmp-form .word-pick label { display: inline-block; margin: 0; font-weight: 400; }
+  .cmp-form textarea { min-height: 80px; }
+  .cmp-pick span { font-family: var(--sans); font-size: 14px; padding: 6px 14px; }
+  .cmp-dim { margin-bottom: 14px; }
+  .cmp-dim-h { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; font-size: 13px; margin-bottom: 6px; }
+  .cmp-dim-h span:first-child { font-weight: 700; }
+  .cmp-dim .seg[data-me] { outline: 3px solid var(--ink); outline-offset: -3px; }
+  .cmp-n { font-family: var(--sans); font-size: 12px; color: var(--sub); letter-spacing: 0; margin-left: 6px; }
+  .cmp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .cmp-card .mini { margin-bottom: 4px; }
+  .cmp-card .to-person { margin-top: 0; font-size: 12px; }
+
   /* ---- people ---- */
   .people-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
   .person-tile { display: flex; flex-direction: column; gap: 6px; background: var(--paper); border-radius: 6px; box-shadow: 0 2px 14px rgba(40,60,70,.06); padding: 18px 18px 14px; text-decoration: none; color: var(--ink); transition: transform .15s ease; }
@@ -739,7 +754,7 @@ function viewWord(id, mode) {
       </div>
     </div>
     <div id="body"></div>
-    <p style="text-align:center;margin-top:44px"><a class="btn" href="#/add?word=${w.id}">「${w.label}」にあなたの解釈をくわえる</a></p>
+    <p style="text-align:center;margin-top:44px"><a class="btn" href="#/compare?word=${w.id}">「${w.label}」をあなたの解釈とくらべる</a>　<a class="btn" href="#/add?word=${w.id}">「${w.label}」にあなたの解釈をくわえる</a></p>
   </section>`;
   const body = document.getElementById('body');
 
@@ -840,6 +855,11 @@ function viewAdd(preWord) {
       ${mine.some(e => e.sent) ? `<p class="sample-note" style="margin:8px 0 0">※ ここで削除しても、送信済みの内容は取り消されません。取り消したいときは<a href="#/about">掲載について</a>の「掲載の取り下げ」をご覧ください。</p>` : ''}
       <p style="margin-top:16px"><button class="btn" id="export" type="button">JSONで書き出す</button></p></div>` : ''}
   </article>`;
+  // 「くらべる」から来たときは、書いた解釈を下書きとして入れる（1回だけ）
+  try { const d = JSON.parse(sessionStorage.getItem(DRAFT_KEY) || 'null');
+    if (d && d.text && (!preWord || d.word === preWord)) { document.getElementById('text').value = d.text;
+      const r = app.querySelector(`input[name=word][value="${d.word}"]`); if (r) r.checked = true; }
+    sessionStorage.removeItem(DRAFT_KEY); } catch {}
   const v = id => document.getElementById(id).value.trim();
   document.getElementById('af').onsubmit = async ev => {
     ev.preventDefault();
@@ -1003,6 +1023,98 @@ function viewPerson(no) {
   document.onkeydown = ev => { if (ev.key === 'ArrowLeft') go(i - 1); if (ev.key === 'ArrowRight') go(i + 1); };
 }
 
+/* =========================================================
+   くらべる：読者が自分の解釈を、分析の3つの観点で位置づけて、回答者の解釈とくらべる
+   入力した内容は保存も送信もしない（「辞書にくわえる」を押したときだけ、
+   投稿画面に下書きとして引き継ぐ）
+   ========================================================= */
+const COMPARE_Q = {
+  center:   { q: 'あなたの解釈は、何を中心にしていますか', opts: ['自分の気持ちや感覚', '自分と人との関係', '他の人や社会'] },
+  concrete: { q: 'どのように表しましたか', opts: ['具体的な場面や物', '具体と抽象の両方', '考え方や状態'] },
+  tone:     { q: 'その言葉を、どう感じていますか', opts: ['良いもの・大切なもの', 'どちらとも言えない', '良くない面もある'] },
+};
+const DRAFT_KEY = 'kotoba-compare-draft';
+const bigrams = t => { const c = String(t).replace(/[\s、。，．,.!?！？「」『』（）()・…ー〜~]/g, ''); const b = new Set();
+  for (let i = 0; i < c.length - 1; i++) b.add(c.slice(i, i + 2)); if (c.length === 1) b.add(c); return b; };
+const textSim = (x, y) => { const a = bigrams(x), b = bigrams(y); if (!a.size || !b.size) return 0;
+  let n = 0; a.forEach(v => { if (b.has(v)) n++; }); return n / (a.size + b.size - n); };
+
+function viewCompare(preWord) {
+  const a = loadAnalysis();
+  let draft = {}; try { draft = JSON.parse(sessionStorage.getItem(DRAFT_KEY)) || {}; } catch {}
+  const w0 = wordById(preWord) || wordById(draft.word) || WORDS[0];
+  app.innerHTML = `
+  <section class="fade" style="max-width:800px;margin:0 auto">
+    <div class="an-head"><span class="pill">くらべる</span>
+      <h2>あなたの解釈とくらべる</h2>
+      <p class="sample-note">あなたの解釈を書いて、3つの問いに答えると、アンケートで集まった解釈のなかで、あなたと近い解釈・遠い解釈が見つかります。分析ページと同じ観点を使っています。<br>
+      この画面に入力した内容は、保存も送信もされません。</p>
+    </div>
+    <form id="cf" class="an-block cmp-form">
+      <div class="row"><label>言葉をえらぶ</label>
+        <div class="word-pick">${WORDS.map(w => `<label><input type="radio" name="word" value="${w.id}" ${w.id === w0.id ? 'checked' : ''}><span>${w.label}</span></label>`).join('')}</div></div>
+      <div class="row"><label for="ctext">あなたにとって、その言葉とはどのようなものですか？ <small>（任意）</small></label>
+        <textarea id="ctext" placeholder="書くと、ことばの近い解釈も探します">${esc(draft.text || '')}</textarea></div>
+      ${DIMS.map(d => `<div class="row"><label>${esc(COMPARE_Q[d.id].q)}</label>
+        <div class="word-pick cmp-pick">${d.cats.map((c, i) => `<label><input type="radio" name="${d.id}" value="${c.id}" required><span>${esc(COMPARE_Q[d.id].opts[i])}</span></label>`).join('')}</div></div>`).join('')}
+      <button class="btn fill" type="submit">くらべる</button>
+    </form>
+    <div id="cres"></div>
+  </section>`;
+
+  const form = document.getElementById('cf');
+  form.onsubmit = ev => {
+    ev.preventDefault();
+    const word = form.querySelector('input[name=word]:checked').value; const w = wordById(word);
+    const text = document.getElementById('ctext').value.trim();
+    const mine = Object.fromEntries(DIMS.map(d => [d.id, form.querySelector(`input[name=${d.id}]:checked`).value]));
+    const list = analysisEntries().filter(e => e.word === word && DIMS.every(d => catOf(e, a, d)));
+    const res = document.getElementById('cres');
+    if (!list.length) { res.innerHTML = `<p class="empty">「${w.label}」はまだ分類されていないため、くらべられません。</p>`; return; }
+    const idx = (d, id) => d.cats.findIndex(c => c.id === id);
+    const dist = e => DIMS.reduce((s, d) => s + Math.abs(idx(d, catOf(e, a, d)) - idx(d, mine[d.id])), 0);
+    const same = e => DIMS.filter(d => catOf(e, a, d) === mine[d.id]).length;
+    const exact = list.filter(e => same(e) === DIMS.length);
+    const near = exact.length ? exact : list.filter(e => same(e) === DIMS.length - 1);
+    const maxD = Math.max(...list.map(dist));
+    const far = maxD > 0 ? shuffle(list.filter(e => dist(e) === maxD)).slice(0, 3) : [];
+    const sim = text ? list.map(e => [e, textSim(text, e.text)]).filter(([, v]) => v >= 0.08).sort((x, y) => y[1] - x[1]).slice(0, 3).map(([e]) => e) : [];
+    const card = e => { const ps = personOf(e);
+      return `<div class="cmp-card">${miniCard(e)}${ps ? `<a class="to-person" href="#/people/${ps.no}">この人の5つの解釈を読む →</a>` : ''}</div>`; };
+    res.innerHTML = `
+    <div class="an-block">
+      <h3>「${w.label}」のなかの、あなたの位置</h3>
+      ${text ? `<div class="mini" style="--c:${w.color};margin-bottom:18px"><q>${esc(text)}</q><small>あなたの解釈</small></div>` : ''}
+      ${DIMS.map(d => { const c = d.cats.find(x => x.id === mine[d.id]); const n = list.filter(e => catOf(e, a, d) === c.id).length;
+        return `<div class="cmp-dim"><div class="cmp-dim-h"><span>${esc(d.label)}</span><span>あなたと同じ「${esc(c.label)}」は ${list.length}件中 <strong>${n}件</strong></span></div>
+          ${stackBar(list, a, d).replace(`title="${esc(c.label)}：`, `data-me="1" title="${esc(c.label)}：`)}</div>`; }).join('')}
+      <p class="sample-note" style="margin:10px 0 0">枠で囲んだところが、あなたの答えです。</p>
+    </div>
+    <div class="an-block">
+      <h3>あなたと近い解釈 <small class="cmp-n">${exact.length ? '3つの観点がすべて同じ' : '3つの観点のうち2つが同じ'}・${near.length}件</small></h3>
+      ${near.length ? `<div class="cmp-grid">${shuffle(near).slice(0, 6).map(card).join('')}</div>${near.length > 6 ? `<p class="sample-note">ほかに${near.length - 6}件あります。もう一度「くらべる」を押すと入れ替わります。</p>` : ''}` : '<p class="sample-note">近い解釈は見つかりませんでした。あなたの解釈は、ここに集まったどの解釈とも違う場所にあります。</p>'}
+      <p class="sample-note" style="margin:6px 0 0">観点が同じでも、書かれていることはきっと違います。どこが重なり、どこが違うかを読んでみてください。</p>
+    </div>
+    ${far.length ? `<div class="an-block">
+      <h3>あなたから遠い解釈</h3>
+      <div class="cmp-grid">${far.map(card).join('')}</div>
+      <p class="sample-note" style="margin:6px 0 0">同じ「${w.label}」という言葉を、この人たちはなぜこう捉えたのでしょう。カードの人のページで、ほかの言葉の解釈も読んでみてください。</p>
+    </div>` : ''}
+    ${sim.length ? `<div class="an-block">
+      <h3>ことばが近い解釈</h3>
+      <div class="cmp-grid">${sim.map(card).join('')}</div>
+      <p class="sample-note" style="margin:6px 0 0">あなたが書いた文と、似た表現を使っている解釈です。</p>
+    </div>` : ''}
+    <p style="text-align:center">
+      ${text ? `<button class="btn fill" id="toAdd" type="button">この解釈を辞書にくわえる</button>` : ''}
+      <a class="btn" href="#/word/${w.id}">「${w.label}」の解釈をすべて読む</a>
+    </p>`;
+    const toAdd = document.getElementById('toAdd');
+    if (toAdd) toAdd.onclick = () => { try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ word, text })); } catch {} location.hash = '#/add?word=' + word; };
+    res.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+}
+
 function viewEnd() {
   app.innerHTML = `
   <article class="prose fade">
@@ -1010,11 +1122,11 @@ function viewEnd() {
     <p>ここまで読んでくださり、ありがとうございました。最後に、いくつか問いを置いておきます。</p>
     <ol>
       <li>あなたにとって「普通」「自由」「優しさ」「幸せ」「居場所」とは、どのようなものですか。</li>
-      <li>読んだ解釈の中で、自分とまったく違うと感じたものはありましたか。それはなぜでしょう。</li>
+      <li>読んだ解釈の中で、自分とまったく違うと感じたものはありましたか。それはなぜでしょう。（<a href="#/compare">あなたの解釈とくらべる</a>）</li>
       <li>反対に、知らない誰かの解釈に、深くうなずいたものはありましたか。</li>
       <li>身近な人は、同じ言葉をどう解釈していると思いますか。今度、聞いてみませんか。</li>
     </ol>
-    <p style="margin-top:2em"><a class="btn fill" href="#/add">あなたの解釈をくわえる</a>　<a class="btn" href="#/">表紙へもどる</a></p>
+    <p style="margin-top:2em"><a class="btn fill" href="#/compare">あなたの解釈とくらべる</a>　<a class="btn" href="#/add">あなたの解釈をくわえる</a>　<a class="btn" href="#/">表紙へもどる</a></p>
   </article>`;
 }
 
@@ -1459,6 +1571,7 @@ function route() {
   else if (r === 'search') viewSearch(params.get('q') || '');
   else if (r === 'add') viewAdd(params.get('word'));
   else if (r === 'voices') viewVoices();
+  else if (r === 'compare') viewCompare(params.get('word'));
   else if (r === 'people') seg[1] ? viewPerson(seg[1]) : viewPeople();
   else if (r === 'end') viewEnd();
   else if (r === 'about') viewAbout();
