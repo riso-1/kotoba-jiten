@@ -1103,7 +1103,7 @@ function viewCompare(preWord) {
     if (!picked) return;
     document.getElementById('ctext').value = e.text;
     // 分析で分類している解釈なら、その分類を問いの答えに入れる
-    DIMS.forEach(d => { const c = (!e.mine && !e.posted) ? catOf(e, a, d) : null;
+    DIMS.forEach(d => { const c = !e.mine ? catOf(e, a, d) : null;
       form.querySelectorAll(`input[name=${d.id}]`).forEach(x => { x.checked = !!c && x.value === c; }); });
   };
   form.onsubmit = ev => {
@@ -1112,7 +1112,7 @@ function viewCompare(preWord) {
     const text = document.getElementById('ctext').value.trim();
     const mine = Object.fromEntries(DIMS.map(d => [d.id, form.querySelector(`input[name=${d.id}]:checked`).value]));
     // 選んだ解釈そのものは、くらべる相手から外す
-    const list = analysisEntries().filter(e => e.word === word && DIMS.every(d => catOf(e, a, d))
+    const list = compareEntries(a).filter(e => e.word === word && DIMS.every(d => catOf(e, a, d))
       && !(picked && picked.word === word && entryKey(picked) === entryKey(e)));
     const res = document.getElementById('cres');
     if (!list.length) { res.innerHTML = `<p class="empty">「${w.label}」はまだ分類されていないため、くらべられません。</p>`; return; }
@@ -1334,6 +1334,10 @@ const entryKey = e => { const p = e.profile || {};
   return [e.word, String(e.text).trim(), p.age, p.gender, p.role].map(v => String(v ?? '').trim()).join('|'); };
 // 分析の対象はアンケートの回答だけ（投稿フォームから届いた解釈と、読者がこのブラウザで足した解釈は含めない）
 const analysisEntries = () => allEntries().filter(e => !e.mine && !e.posted);
+// 投稿フォームから届いて掲載された解釈（分類作業の画面で分類できる。分類すると「くらべる」の相手になるが、分析の集計には入れない）
+const postedEntries = () => allEntries().filter(e => e.posted && !e.mine);
+// 「くらべる」の相手：アンケートの回答と、3つの観点すべてを分類済みの投稿
+const compareEntries = a => [...analysisEntries(), ...postedEntries().filter(e => DIMS.every(d => catOf(e, a, d)))];
 // 観点ごとの分類の置き場所（最初の観点は以前の analysis.js と同じ axis を使う）
 const dimMap = (a, id) => id === DIMS[0].id ? a.axis : (a.dims[id] = a.dims[id] || {});
 const catOf = (e, a, d) => { const id = dimMap(a, d.id)[entryKey(e)]; return d.cats.some(c => c.id === id) ? id : null; };
@@ -1508,18 +1512,21 @@ function viewClassify(wid) {
   let a = loadAnalysis();
   const all = analysisEntries();
   const list = all.filter(e => e.word === w.id);
+  const posts = postedEntries().filter(e => e.word === w.id);
+  const allPosts = postedEntries();
   let onlyTodo = false; try { onlyTodo = sessionStorage.getItem('kotoba-only-todo') === '1'; } catch {}
   const src = analysisSource();
   const done = e => DIMS.every(d => catOf(e, a, d));
   const count = (l, d) => l.filter(e => d ? catOf(e, a, d) : done(e)).length;
-  const tabs = WORDS.map(x => { const l = all.filter(e => e.word === x.id);
-    return `<a href="#/analysis/classify?w=${x.id}" class="${x.id === w.id ? 'on' : ''}" style="color:${x.color}">${x.label} <small style="font-family:var(--sans);font-size:11px;color:var(--sub)">${count(l)}/${l.length}</small></a>`; }).join('');
+  const tabs = WORDS.map(x => { const l = all.filter(e => e.word === x.id); const pl = allPosts.filter(e => e.word === x.id);
+    const todoPosts = pl.length - count(pl);
+    return `<a href="#/analysis/classify?w=${x.id}" class="${x.id === w.id ? 'on' : ''}" style="color:${x.color}">${x.label} <small style="font-family:var(--sans);font-size:11px;color:var(--sub)">${count(l)}/${l.length}${todoPosts ? `・<span style="color:#b0625a">投稿 未分類${todoPosts}</span>` : ''}</small></a>`; }).join('');
   const btns = (e, d) => { const cur = catOf(e, a, d);
     return d.cats.map(c => `<button type="button" data-cat="${c.id}" class="${cur === c.id ? 'on' : ''} ${c.mid ? 'mid' : ''}" style="${segStyle(c)}">${esc(c.short)}</button>`).join(''); };
-  const row = (e, i) => { const k = entryKey(e); const p = e.profile || {};
+  const row = (e, i, pre = 'No.') => { const k = entryKey(e); const p = e.profile || {};
     const who = [p.age && (p.age + (/^\d+$/.test(p.age) ? '歳' : '')), p.gender, p.role].filter(Boolean).join('・');
     return `<div class="cl-row ${done(e) ? 'done' : ''}" data-k="${esc(k)}" ${onlyTodo && done(e) ? 'hidden' : ''}>
-      <div><small style="color:var(--sub);font-size:11px">No.${String(i + 1).padStart(2, '0')}</small><q>${esc(e.text)}</q>
+      <div><small style="color:var(--sub);font-size:11px">${pre}${String(i + 1).padStart(2, '0')}</small><q>${esc(e.text)}</q>
         <div class="sub">${[e.reason, e.image && ('イメージ：' + e.image), who].filter(Boolean).map(esc).join('\n')}</div></div>
       <div>${DIMS.map(d => `<div class="axis-grp" data-dim="${d.id}"><small>${esc(d.label)}</small><div class="axis-btns">${btns(e, d)}</div></div>`).join('')}
         <input type="text" data-memo placeholder="分類メモ（任意・非公開）" value="${esc(a.memo[k] || '')}"></div>
@@ -1543,7 +1550,12 @@ function viewClassify(wid) {
         <h3 style="margin:0;color:${w.color}">「${w.label}」 <small id="prog" style="font-family:var(--sans);font-size:12px;color:var(--sub)">${progText()}</small></h3>
         <label style="font-size:13px"><input type="checkbox" id="todo" ${onlyTodo ? 'checked' : ''}> 未分類が残っているものだけ表示</label>
       </div>
-      ${list.length ? list.map(row).join('') : '<p class="empty">この言葉の解釈はまだありません。</p>'}
+      ${list.length ? list.map((e, i) => row(e, i)).join('') : '<p class="empty">この言葉の解釈はまだありません。</p>'}
+    </div>
+    <div class="an-block">
+      <h3 style="margin:0 0 4px">「${w.label}」の投稿 <small id="progP" style="font-family:var(--sans);font-size:12px;color:var(--sub)">${posts.length ? `${count(posts)} / ${posts.length} 件 分類済み` : ''}</small></h3>
+      <p class="sample-note" style="margin:0 0 6px">投稿フォームから届き、掲載した解釈です。3つの観点すべてを分類すると「くらべる」の比べる相手に入ります。分析ページの集計には入りません。</p>
+      ${posts.length ? posts.map((e, i) => row(e, i, '投稿 ')).join('') : '<p class="empty" style="padding:16px 0">この言葉の投稿はまだありません。</p>'}
     </div>
     <div class="an-block">
       <h3>「${w.label}」の考察 <small style="font-family:var(--sans);font-size:12px;color:var(--sub)">（分析ページで、どの観点を見ているときも「${w.label}」の欄に表示されます）</small></h3>
@@ -1561,9 +1573,10 @@ function viewClassify(wid) {
     <p class="sample-note" style="text-align:center">作業データはこのブラウザだけのものです。公開するときは analysis.js を書き出して index.html と同じフォルダに置き、「作業データを消す」を押してください。</p>
   </section>`;
 
-  const prog = () => document.getElementById('prog').textContent = progText();
+  const prog = () => { document.getElementById('prog').textContent = progText();
+    const pp = document.getElementById('progP'); if (pp && posts.length) pp.textContent = `${count(posts)} / ${posts.length} 件 分類済み`; };
   app.querySelectorAll('.cl-row').forEach(r => {
-    const k = r.dataset.k; const e = list.find(x => entryKey(x) === k);
+    const k = r.dataset.k; const e = [...list, ...posts].find(x => entryKey(x) === k);
     // ボタンの外枠に1回だけ付ける（中身を描き直しても押せる）
     r.querySelectorAll('.axis-grp').forEach(g => {
       const d = dimById(g.dataset.dim); const box = g.querySelector('.axis-btns');
@@ -1632,7 +1645,11 @@ route();
 loadRemote().then(ok => {
   if (!ok || !remoteEntries.length) return;
   if (/^#\/compare/.test(location.hash)) { if (refreshComparePicker) refreshComparePicker(); }
-  else if (!/^#\/(add|analysis\/classify)/.test(location.hash)) route();
+  else if (/^#\/analysis\/classify/.test(location.hash)) {
+    // 分類は押すたびに保存しているので描き直してよい。文字を入力中のときだけは描き直さない
+    const f = document.activeElement; if (!(f && /^(INPUT|TEXTAREA)$/.test(f.tagName) && f.type !== 'checkbox')) route();
+  }
+  else if (!/^#\/add/.test(location.hash)) route();
 });
 </script>
 </body>
