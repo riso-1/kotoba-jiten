@@ -480,7 +480,13 @@ async function postToForm(e) {
   const put = (k, v) => { if (f[k] && v) body.append(f[k], v); };
   put('word', wordById(e.word).label); put('text', e.text); put('reason', e.reason); put('image', e.image);
   put('color', e.color); put('tags', (e.tags || []).join('、'));
-  for (const k of ['name', 'age', 'gender', 'role', 'interest', 'self']) put(k, e.profile[k]);
+  for (const k of ['name', 'interest', 'self']) put(k, e.profile[k]);
+  // 年齢・性別・立場はフォームでも選択式。選択肢にない値（「その他」に書いた内容）は、フォームの「その他」欄に入れる
+  for (const k of ['age', 'gender', 'role']) {
+    const val = e.profile[k]; if (!f[k] || !val) continue;
+    if (PROFILE_CHOICES[k].includes(val) && val !== 'その他') body.append(f[k], val);
+    else { body.append(f[k], '__other_option__'); body.append(f[k] + '.other_option_response', val); }
+  }
   put('consent', '同意します');
   // Google フォームは別サイトなので返事は読めない（no-cors）。通信できれば送信済みとみなす
   await fetch(REMOTE.form.action, { method: 'POST', mode: 'no-cors', body });
@@ -609,7 +615,7 @@ function mapColumns(header) {
       return;
     }
     if (/ペンネーム|ニックネーム/.test(s)) m.profile.name ??= i;
-    else if (/年齢/.test(s)) m.profile.age ??= i;
+    else if (/年齢|年代/.test(s)) m.profile.age ??= i;
     else if (/性別/.test(s)) m.profile.gender ??= i;
     else if (/立場|仕事|職業/.test(s)) m.profile.role ??= i;
     else if (/関心/.test(s)) m.profile.interest ??= i;
