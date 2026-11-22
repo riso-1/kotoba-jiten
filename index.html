@@ -4,17 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ことばの解釈辞典</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --ink: #333a3d;
-    --sub: #6b7a80;
-    --accent: #4f7479;
-    --accent-soft: #d6e6ea;
-    --line: #dfe7ea;
-    --paper: #ffffff;
-    --bg: #f3f7f8;
-    --serif: "Yu Mincho", "YuMincho", "Hiragino Mincho ProN", "Noto Serif JP", serif;
-    --sans: "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", "Yu Gothic", "Meiryo", sans-serif;
+    /* デザイン：国語辞典（生成りの紙・墨・朱） */
+    --ink: #1f1c18;
+    --sub: #6d665c;
+    --accent: #2b2722;
+    --accent-soft: #ebe3d3;
+    --red: #b23a2a;
+    --line: #d8cfbf;
+    --paper: #fbf8f1;
+    --bg: #f5f0e5;
+    --serif: "Shippori Mincho", "Yu Mincho", "YuMincho", "Hiragino Mincho ProN", "Noto Serif JP", serif;
+    --sans: "Zen Kaku Gothic New", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", "Yu Gothic", "Meiryo", sans-serif;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; }
@@ -314,11 +319,119 @@
     .book { width: 58px; }
     .book .t { font-size: 19px; }
   }
+
+  /* =========================================================
+     国語辞典のデザイン（上の基本スタイルを上書きする）
+     ========================================================= */
+  body { background: var(--bg); font-family: var(--serif); }
+  header.site { background: rgba(245,240,229,.95); border-bottom: 3px double var(--ink); padding: 14px 32px 10px; align-items: flex-end; }
+  header.site .logo { font-weight: 800; font-size: 20px; letter-spacing: .2em; line-height: 1.3; }
+  header.site .logo small { display: block; font-family: var(--sans); font-weight: 400; font-size: 9px; letter-spacing: .28em; color: var(--sub); }
+  header.site nav { gap: 2px 16px; justify-content: flex-end; }
+  header.site nav a { font-family: var(--sans); border-radius: 0; padding: 2px 0; border-bottom: 2px solid transparent; }
+  header.site nav a.on, header.site nav a:hover { background: none; color: var(--ink); border-bottom-color: var(--red); }
+  .pill { background: none; border: 1px solid var(--red); color: var(--red); border-radius: 0; font-family: var(--sans); font-weight: 500; font-size: 11px; letter-spacing: .2em; padding: 1px 10px; }
+  .sample-note, .empty, .toolbar, .chip, .btn, form label, form legend, .legend, .an-table, .cmp-dim-h, .cross-ctrl, .overview dl, footer { font-family: var(--sans); }
+  .btn { border-radius: 0; border-color: var(--ink); color: var(--ink); background: transparent; letter-spacing: .1em; }
+  .btn.fill { background: var(--ink); color: var(--paper); }
+  .toolbar button, .chip { border-radius: 0; background: transparent; border-color: var(--line); }
+  .toolbar button:hover, .chip:hover { border-color: var(--ink); color: var(--ink); }
+  .chip.on { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .prose, .an-block, .person-head, .person-entry, .person-tile { background: var(--paper); box-shadow: none; border: 1px solid var(--line); border-radius: 0; }
+  .prose { border-top: 3px double var(--ink); }
+  .prose h2, .an-head h2, .person-head h2 { font-weight: 800; }
+  .prose h3, .an-block h3 { font-weight: 600; }
+  .prose h3 { border-bottom-color: var(--ink); }
+  .an-block.summary { border-top: 3px double var(--ink); }
+  .person-entry { border-left: 4px solid var(--c); }
+  .person-tile:hover { transform: none; border-color: var(--ink); }
+  .mini { background: transparent; border-left-width: 3px; border-radius: 0; }
+  .to-person { color: var(--red); font-family: var(--sans); }
+  .word-pick span { border-radius: 0; background: transparent; }
+  .word-pick input:checked + span { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  form input[type=text], form input[type=number], form textarea, form select, .search-box input, .an-block textarea, .cl-row input[type=text], .cross-ctrl select { border-radius: 0; background: #fffdf8; border-color: var(--line); }
+  form fieldset { border-radius: 0; }
+  form legend { color: var(--red); }
+  .dim-tabs a, .axis-btns button { border-radius: 0; background: transparent; font-family: var(--sans); }
+  .dim-tabs a.on { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .toast { background: var(--ink); color: var(--paper); border-radius: 0; font-family: var(--sans); }
+  .mine-badge { background: none; border: 1px solid var(--red); color: var(--red); border-radius: 0; font-family: var(--sans); vertical-align: 3px; }
+  .reader-nav button { border-radius: 0; background: transparent; color: var(--ink); border-color: var(--ink); }
+  footer { color: var(--sub); }
+
+  /* 表紙：タイトルの枠と、見出し語の索引 */
+  .cover { max-width: 760px; margin: 0 auto; padding-top: 40px; }
+  .titlebox { border: 1px solid var(--ink); outline: 1px solid var(--ink); outline-offset: 5px; padding: 46px 20px 40px; margin: 6px auto 54px; max-width: 540px; }
+  .titlebox .ed { font-family: var(--sans); font-size: 11px; letter-spacing: .3em; color: var(--sub); }
+  .titlebox h1 { font-weight: 800; letter-spacing: .3em; margin: 14px 0 10px; }
+  .titlebox .lead { margin: 0; color: var(--ink); letter-spacing: .2em; }
+  .idx { display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+  .idx a { text-decoration: none; padding: 18px 0 14px; border-left: 1px solid var(--line); transition: background .2s ease; }
+  .idx a:first-child { border-left: none; }
+  .idx a:hover { background: var(--paper); }
+  .idx .y { display: block; font-family: var(--sans); font-size: 11px; color: var(--sub); letter-spacing: .2em; }
+  .idx .w { display: block; font-size: 24px; font-weight: 600; letter-spacing: .1em; }
+  .idx .n { display: block; font-family: var(--sans); font-size: 11px; color: var(--red); }
+
+  /* 辞書のページ：柱・見出し語・語義・爪 */
+  .hashira { display: flex; justify-content: space-between; gap: 12px; font-family: var(--sans); font-size: 12px; color: var(--sub); letter-spacing: .15em; border-bottom: 1px solid var(--ink); padding: 0 0 6px; margin: 0 0 26px; }
+  .word-head h2.hw { font-weight: 800; font-size: 40px; letter-spacing: .08em; }
+  .hw b, .sword b { color: var(--ink); font-weight: 400; }
+  .word-head .meta { font-family: var(--sans); font-size: 12px; margin-top: 6px; }
+  .grid { display: block; max-width: 860px; }
+  .wordpage { max-width: 860px; margin: 0 auto; }
+  .sense { display: grid; grid-template-columns: 2.2em minmax(0, 1fr); gap: 0 12px; padding: 20px 0; border-bottom: 1px dotted var(--line); cursor: pointer; outline: none; }
+  .sense:focus-visible { background: rgba(178,58,42,.05); }
+  .sno { display: inline-flex; align-items: center; justify-content: center; width: 1.8em; height: 1.8em; border-radius: 50%; background: var(--red); color: var(--paper); font-family: var(--sans); font-size: 12px; margin-top: 5px; }
+  .sword { display: inline-block; font-weight: 800; font-size: 14px; text-decoration: none; margin-bottom: 2px; }
+  .sense .def { font-size: 20px; font-weight: 600; line-height: 1.7; margin: 0 0 6px; white-space: pre-line; overflow-wrap: anywhere; }
+  .sense .why { font-size: 14.5px; line-height: 1.95; margin: 0 0 6px; color: #3c3730; white-space: pre-line; overflow-wrap: anywhere; }
+  .sense .lb { font-family: var(--sans); font-size: 10px; color: var(--sub); border: 1px solid var(--line); padding: 1px 6px; margin-right: 8px; vertical-align: 2px; letter-spacing: .1em; }
+  .sense .img { font-size: 13px; line-height: 1.9; color: var(--sub); margin: 0 0 6px; white-space: pre-line; overflow-wrap: anywhere; }
+  .sense .img .swatch, .person-entry .image .swatch { display: inline-block; width: 11px; height: 11px; margin-right: 4px; vertical-align: -1px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.18); }
+  .sense .img .swatch:last-of-type, .person-entry .image .swatch:last-of-type { margin-right: 8px; }
+  .sense .who { font-family: var(--sans); font-size: 12px; color: var(--sub); display: flex; gap: 4px 12px; flex-wrap: wrap; align-items: baseline; }
+  .sense .who .nm { color: var(--ink); }
+  .sense .who .nm::before { content: "▷ "; color: var(--red); }
+  .sense .who .open { margin-left: auto; color: var(--red); }
+  .sense .who .open::after { content: "　＋"; }
+  .sense.flipped .who .open::after { content: "　－"; }
+  .sense .prof { display: none; margin-top: 10px; padding: 12px 16px; background: var(--paper); border-left: 2px solid var(--red); font-family: var(--sans); font-size: 13px; }
+  .sense.flipped .prof { display: block; }
+  .sense .prof dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin: 0; }
+  .sense .prof dt { color: var(--sub); font-size: 12px; }
+  .sense .prof dd { margin: 0; overflow-wrap: anywhere; }
+  .sense .prof .to-person { margin-top: 8px; }
+  .reader { max-width: 680px; }
+  .reader .sense { border-bottom: none; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); padding: 30px 0; }
+  .reader .sense .def { font-size: 24px; }
+  .thumb { position: fixed; right: 0; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 4px; z-index: 5; }
+  .thumb a { writing-mode: vertical-rl; text-decoration: none; font-size: 14px; padding: 12px 8px; border: 1px solid var(--ink); border-right: none; background: var(--paper); letter-spacing: .2em; }
+  .thumb a.on { background: var(--ink); color: var(--paper); }
+  .thumb a:not(.on):hover { background: var(--accent-soft); }
+  .wordpage .word-tabs { display: none; }
+  @media (max-width: 1180px) { .thumb { display: none; } .wordpage .word-tabs { display: flex; } }
+  .word-tabs a { border-radius: 0; color: var(--ink) !important; }
+  .word-tabs a.on { border-bottom-color: var(--red); }
+  .spread .bar { border-radius: 0; }
+
+  @media (max-width: 640px) {
+    header.site { align-items: flex-start; padding: 10px 16px 8px; position: static; }
+    header.site nav { justify-content: flex-start; gap: 2px 12px; }
+    .titlebox { padding: 34px 12px 30px; }
+    .titlebox h1 { letter-spacing: .15em; }
+    .titlebox .lead { font-size: 14px; letter-spacing: .04em; }
+    .idx .w { font-size: 17px; letter-spacing: 0; }
+    .idx .y { font-size: 9px; letter-spacing: .05em; }
+    .word-head h2.hw { font-size: 30px; }
+    .sense .def { font-size: 18px; }
+    .reader .sense .def { font-size: 20px; }
+  }
 </style>
 </head>
 <body>
 <header class="site">
-  <a class="logo" href="#/">ことばの解釈辞典</a>
+  <a class="logo" href="#/">ことばの解釈辞典<small>KOTOBA NO KAISHAKU JITEN</small></a>
   <nav id="nav">
     <a href="#/intro" data-r="intro">はじめに</a>
     <a href="#/word/futsu" data-r="word">辞書をひらく</a>
@@ -678,28 +791,62 @@ function toast(msg) {
   document.body.appendChild(t); setTimeout(() => t.remove(), 2200);
 }
 
+// 解釈を辞書の語義のように表示する。下の「考えた人」を押すと、プロフィールがひらく
+// （クラス名 card / flipped は、以前のカードをめくる仕組みの名残。並べ替えや「すべてひらく」がそのまま使う）
+// 投稿画面の色の欄に最初から入っている色。これのまま送られた投稿は「色を選ばなかった」とみなす
+const DEFAULT_IMAGE_COLOR = '#8fb3bd';
+const chosenColor = e => { const c = String(e.color || '').trim().toLowerCase(); return /^#[0-9a-f]{6}$/.test(c) && c !== DEFAULT_IMAGE_COLOR ? c : ''; };
+// イメージの文章に書かれた色の名前から、色の丸を添える（制作者が言葉から選んだ色。回答者が選んだ色ではない）
+// 長い名前から順に探す（「スカイブルー」を「ブルー」より先に、「水色」を「色」と取り違えない）
+const COLOR_WORDS = [
+  ['スカイブルー', '#6fb9e8'], ['クリーム色', '#f1e6c4'], ['クリーム', '#f1e6c4'], ['若草色', '#a7c47a'], ['桜色', '#f4d3d6'],
+  ['水色', '#9cd0e6'], ['空色', '#8ec5e8'], ['灰色', '#9b9a95'], ['グレー', '#9b9a95'], ['グレイ', '#9b9a95'],
+  ['ベージュ', '#dccbad'], ['オレンジ', '#e8913a'], ['橙色', '#e8913a'], ['ピンク', '#f0a6b6'], ['桃色', '#f0a6b6'],
+  ['黄緑', '#a8c66c'], ['薄緑', '#bcd9a8'], ['黄色', '#ecc94b'], ['イエロー', '#ecc94b'], ['金色', '#c9a63e'], ['ゴールド', '#c9a63e'],
+  ['銀色', '#b9bcc0'], ['シルバー', '#b9bcc0'], ['グリーン', '#6b9e6e'], ['みどり', '#6b9e6e'], ['緑', '#6b9e6e'],
+  ['ブルー', '#3f6fb3'], ['紺', '#2c3e6b'], ['青', '#3f6fb3'], ['パープル', '#8d63a8'], ['紫', '#8d63a8'],
+  ['茶色', '#8b5e3c'], ['ブラウン', '#8b5e3c'], ['朱色', '#d9533a'], ['レッド', '#c8463d'], ['赤', '#c8463d'],
+  ['ホワイト', '#ffffff'], ['白', '#ffffff'], ['ブラック', '#2a2a2a'], ['黒', '#2a2a2a'], ['暖色', '#e7a15e'],
+];
+const COLOR_RE = new RegExp(`(薄い|淡い|ペール|やわらかな|濃い|深い)?(${COLOR_WORDS.map(([w]) => w).join('|')})(?!ちゃん|ん坊)`, 'g');
+const mixHex = (hex, to, t) => '#' + [1, 3, 5].map(i => { const a = parseInt(hex.slice(i, i + 2), 16), b = parseInt(to.slice(i, i + 2), 16);
+  return Math.round(a + (b - a) * t).toString(16).padStart(2, '0'); }).join('');
+function imageColors(text) {
+  const t = String(text || '').replace(/面白/g, '');
+  const out = []; let m; COLOR_RE.lastIndex = 0;
+  while ((m = COLOR_RE.exec(t)) && out.length < 4) {
+    let hex = COLOR_WORDS.find(([w]) => w === m[2])[1];
+    if (/薄い|淡い|ペール|やわらかな/.test(m[1] || '')) hex = mixHex(hex, '#ffffff', .45);
+    if (/濃い|深い/.test(m[1] || '')) hex = mixHex(hex, '#000000', .25);
+    if (!out.some(o => o.hex === hex)) out.push({ hex, name: (m[1] || '') + m[2] });
+  }
+  return out;
+}
+// 丸：投稿者が色を選んでいればその色、なければ文章の色の名前から
+const imageSwatches = e => { const c = chosenColor(e);
+  if (c) return `<span class="swatch" style="--c:${c}" title="投稿者が選んだイメージの色"></span>`;
+  return imageColors(e.image).map(o => `<span class="swatch" style="--c:${o.hex}" title="「${esc(o.name)}」から"></span>`).join(''); };
 function cardHTML(e, no, showWord) {
   const w = wordById(e.word); const p = e.profile || {};
+  const age = v => shown(v) && (v + (/^\d+$/.test(v) ? '歳' : ''));
   const row = (k, v) => v ? `<dt>${k}</dt><dd>${esc(v)}</dd>` : '';
+  const who = [age(p.age), shown(p.role)].filter(Boolean).join('・');
+  const ps = personOf(e);
   return `
-  <div class="card" tabindex="0" style="--c:${esc(e.color || w.color)}" aria-label="クリックで裏返す">
-    <div class="card-inner">
-      <div class="face front">
-        <div class="no"><span>${showWord ? `<span class="word-label">「${w.label}」</span> ` : ''}No.${String(no).padStart(2, '0')}</span>${e.mine ? `<span class="mine-badge">${e.sent ? 'あなたの解釈・確認待ち' : 'あなたの解釈'}</span>` : ''}</div>
-        <blockquote>${esc(e.text)}</blockquote>
-        ${e.reason ? `<p class="reason">${esc(e.reason)}</p>` : ''}
-        ${e.image ? `<div class="image"><span class="swatch"></span><span>${esc(e.image)}</span></div>` : ''}
-        <div class="hint">めくると、考えた人 →</div>
-      </div>
-      <div class="face back profile">
-        <div class="no"><span>この解釈を考えた人</span></div>
-        <dl>${row('ペンネーム', p.name)}${row('年齢', p.age && (p.age + (/^\d+$/.test(p.age) ? '歳' : '')))}${row('性別', p.gender)}${row('立場', p.role)}${row('いま関心のあること', p.interest)}</dl>
-        ${p.self ? `<div class="self"><small>今の自分を表す言葉</small><span>${esc(p.self)}</span></div>` : ''}
-        ${personOf(e) ? `<a class="to-person" href="#/people/${personOf(e).no}">この人の5つの解釈を読む →</a>` : ''}
-        <div class="hint" style="margin-top:auto">← 解釈にもどる</div>
+  <article class="card sense" tabindex="0" style="--c:${esc(e.color || w.color)}" aria-label="押すと、この解釈を考えた人がひらきます">
+    <span class="sno">${no}</span>
+    <div class="sbody">
+      ${showWord ? `<a class="sword" href="#/word/${w.id}">${w.yomi}<b>【</b>${w.label}<b>】</b></a>` : ''}
+      <p class="def">${esc(e.text)}${e.mine ? ` <span class="mine-badge">${e.sent ? 'あなたの解釈・確認待ち' : 'あなたの解釈'}</span>` : ''}</p>
+      ${e.reason ? `<p class="why"><span class="lb">理由</span>${esc(e.reason)}</p>` : ''}
+      ${e.image || chosenColor(e) ? `<p class="img"><span class="lb">イメージ</span>${imageSwatches(e)}${esc(e.image || '')}</p>` : ''}
+      <div class="who"><span class="nm">${esc(shown(p.name) || 'ペンネームなし')}</span>${who ? `<span>${esc(who)}</span>` : ''}<span class="open">考えた人</span></div>
+      <div class="prof">
+        <dl>${row('年代', age(p.age))}${row('性別', shown(p.gender))}${row('立場', shown(p.role))}${row('いま関心のあること', shown(p.interest))}${row('今の自分を表す言葉', shown(p.self))}</dl>
+        ${ps ? `<a class="to-person" href="#/people/${ps.no}">この人の5つの解釈を読む →</a>` : ''}
       </div>
     </div>
-  </div>`;
+  </article>`;
 }
 function bindCards(root = app) {
   root.querySelectorAll('.card').forEach(c => {
@@ -716,12 +863,13 @@ function viewCover() {
   const all = allEntries();
   app.innerHTML = `
   <section class="cover fade">
-    <span class="pill">言葉の解釈の違いから、他者を知る</span>
-    <h1>ことばの解釈辞典</h1>
-    <p class="lead">ひとつの言葉に、ひとつではない意味を。</p>
-    <div class="shelf">
-      ${WORDS.map(w => `<a class="book" href="#/word/${w.id}" style="background:${w.color}">
-        <span class="t">${w.label}</span><span class="n">${all.filter(e => e.word === w.id).length}人</span></a>`).join('')}
+    <div class="titlebox">
+      <div class="ed">言葉の解釈の違いから、他者を知る</div>
+      <h1>ことばの解釈辞典</h1>
+      <p class="lead">ひとつの言葉に、ひとつではない意味を。</p>
+    </div>
+    <div class="idx">
+      ${WORDS.map(w => `<a href="#/word/${w.id}"><span class="y">${w.yomi}</span><span class="w">${w.label}</span><span class="n">${all.filter(e => e.word === w.id).length}人</span></a>`).join('')}
     </div>
     <div class="links">
       <a class="btn fill" href="#/intro">はじめに を読む</a>
@@ -738,9 +886,9 @@ function viewIntro() {
   <article class="prose fade">
     <h2>はじめに</h2>
     <p>私たちは同じ言葉を使いながらも、それぞれ異なる経験や価値観を通して、その言葉を解釈しています。</p>
-    <p>一般的な辞書は、言葉の意味を整理し、誰もが共有できる定義を示します。けれどこの辞書は、さまざまな解釈をひとつの定義にまとめることを目的としていません。</p>
+    <p>一般的な辞書は、言葉の意味を整理し、誰もが共有できる定義を示します。しかし、この辞書は、さまざまな解釈をひとつの定義にまとめることを目的としていません。</p>
     <p>ここには、互いに異なる解釈や、ときに矛盾するような解釈が、そのまま並んでいます。<strong>正解を探すための辞書ではありません。</strong></p>
-    <p>カードをめくると、その解釈を考えた人のことが少しだけわかります。「人から読む」では、ひとりの人が5つの言葉をどう解釈したかを、続けて読むことができます。自分とは違う誰かの世界に触れながら、違いを違いのまま受け止めることについて、考えてみてください。</p>
+    <p>解釈の下にある「考えた人」をひらくと、その解釈を考えた人のことが少しだけわかります。「人から読む」では、ひとりの人が5つの言葉をどう解釈したかを、続けて読むことができます。自分とは違う誰かの世界に触れながら、違いを違いのまま受け止めることについて、考えてみてください。</p>
     <p style="margin-top:2em"><a class="btn fill" href="#/word/${WORDS[0].id}">辞書をひらく</a></p>
   </article>`;
 }
@@ -748,20 +896,24 @@ function viewIntro() {
 function viewWord(id, mode) {
   const w = wordById(id) || WORDS[0];
   const entries = allEntries().filter(e => e.word === w.id);
-  const tabs = WORDS.map(x => `<a href="#/word/${x.id}${mode === 'read' ? '/read' : ''}" class="${x.id === w.id ? 'on' : ''}" style="color:${x.color}">${x.label}</a>`).join('');
+  const href = x => `#/word/${x.id}${mode === 'read' ? '/read' : ''}`;
+  const tabs = WORDS.map(x => `<a href="${href(x)}" class="${x.id === w.id ? 'on' : ''}">${x.label}</a>`).join('');
+  const thumb = WORDS.map(x => `<a href="${href(x)}" class="${x.id === w.id ? 'on' : ''}">${x.label}</a>`).join('');
+  const page = '一二三四五'[WORDS.indexOf(w)] || '';
   app.innerHTML = `
-  <section class="fade">
+  <section class="fade wordpage">
+    <nav class="thumb" aria-label="言葉を切り替える">${thumb}</nav>
+    <div class="hashira"><span>${w.yomi} ― ${w.label}</span><span>ことばの解釈辞典</span><span>${page}</span></div>
     <div class="word-tabs">${tabs}</div>
     <div class="word-head">
       <div>
-        <div class="yomi">${w.yomi}</div>
-        <h2 style="color:${w.color}">${w.label}</h2>
+        <h2 class="hw">${w.yomi}<b>【</b>${w.label}<b>】</b></h2>
         <div class="meta">${entries.length}人の解釈が並んでいます。どれも正解で、どれも途中です。</div>
       </div>
       <div class="toolbar">
         <a class="chip ${mode !== 'read' ? 'on' : ''}" href="#/word/${w.id}">一覧</a>
         <a class="chip ${mode === 'read' ? 'on' : ''}" href="#/word/${w.id}/read">1ページずつ読む</a>
-        ${mode !== 'read' ? `<button id="shuffle">並びをまぜる</button><button id="flipAll">すべてめくる</button>` : ''}
+        ${mode !== 'read' ? `<button id="shuffle">並びをまぜる</button><button id="flipAll">考えた人をすべてひらく</button>` : ''}
       </div>
     </div>
     <div id="body"></div>
@@ -780,7 +932,7 @@ function viewWord(id, mode) {
     const draw = () => {
       body.innerHTML = `<div class="reader">${cardHTML(entries[i], i + 1)}
         <div class="reader-nav"><button id="prev" ${i === 0 ? 'disabled' : ''}>‹</button>
-        <span>${i + 1} / ${entries.length}　（カードをクリックでめくる）</span>
+        <span>${i + 1} / ${entries.length}　（解釈を押すと、考えた人がひらきます）</span>
         <button id="next" ${i === entries.length - 1 ? 'disabled' : ''}>›</button></div></div>`;
       bindCards(body);
       body.querySelector('#prev').onclick = () => { if (i > 0) { i--; draw(); } };
@@ -856,9 +1008,10 @@ function viewAdd(preWord) {
       <div class="row"><label for="text">あなたにとって、その言葉とはどのようなものですか？</label><textarea id="text" required></textarea></div>
       <div class="row"><label for="reason">そう考える理由や、思い浮かぶ経験・場面 <small>（任意）</small></label><textarea id="reason"></textarea></div>
       <div class="row"><label for="image">色・形・風景・音・手触りを思い浮かべるとしたら <small>（任意）</small></label>
-        <div class="color-row"><input type="color" id="color" value="#8fb3bd"><input type="text" id="image" placeholder="例：夕方の橙色、湯のみの温度"></div></div>
+        <div class="color-row"><input type="color" id="color" value="${DEFAULT_IMAGE_COLOR}" aria-label="イメージの色"><input type="text" id="image" placeholder="例：夕方の橙色、湯のみの温度"></div>
+        <p class="sample-note" style="margin:6px 0 0">左の四角で色を選ぶと、辞書のイメージの横に小さな丸で表示されます。選ばなければ表示しません。</p></div>
       <div class="row"><label for="tags">キーワード <small>（任意・読点やスペースで区切る）</small></label><input type="text" id="tags" placeholder="例：安心、ひとり"></div>
-      <fieldset><legend>あなたのこと（カードの裏面に表示されます）</legend>
+      <fieldset><legend>あなたのこと（解釈の下の「考えた人」に表示されます）</legend>
         <div class="row"><label for="name">ペンネーム</label><input type="text" id="name" required placeholder="個人が特定できないものにしてください"></div>
         <div class="cols">
           ${choiceField('age', '年代')}
@@ -948,7 +1101,8 @@ function viewAbout() {
       <li>解釈・理由・イメージの文章は、いただいた<strong>原文のまま</strong>掲載しています。内容を書き換えることはありません。</li>
       <li>「ことばの声」には、言葉そのものについての設問への回答を原文のまま掲載しています。「ある」「なし」などの短い回答と、制作者個人へのメッセージは省略しています。</li>
       <li>逆引き用のキーワードは、文章中の表現から自動で付けています。回答者が付けたものではありません。</li>
-      <li>カードの裏面には、回答者が入力したペンネーム・年代・立場などを表示しています。本名や連絡先はお聞きしていません。</li>
+      <li>イメージの文章に色の名前（「灰色」「薄いピンク」など）が書かれている場合は、その色を小さな丸で添えています。丸の色は言葉から自動で選んだもので、回答者が選んだ色ではありません。投稿で色を選んだ場合は、その色を表示します。</li>
+      <li>解釈の下の「考えた人」には、回答者が入力したペンネーム・年代・立場などを表示しています。本名や連絡先はお聞きしていません。</li>
       <li>「人から読む」では、アンケートの同じ回答者による5つの言葉の解釈を、まとめて並べています。</li>
     </ul>
 
@@ -1041,7 +1195,7 @@ function viewPerson(no) {
         <h3><a href="#/word/${w.id}">「${w.label}」</a></h3>
         <blockquote>${esc(e.text)}</blockquote>
         ${e.reason ? `<p class="reason">${esc(e.reason)}</p>` : ''}
-        ${e.image ? `<div class="image">イメージ：${esc(e.image)}</div>` : ''}
+        ${e.image ? `<div class="image">イメージ：${imageSwatches(e)}${esc(e.image)}</div>` : ''}
       </div>` : `<div class="person-entry none">「${w.label}」には回答がありません。</div>`; }).join('')}
     <div class="reader-nav">
       <button id="prev" ${i === 0 ? 'disabled' : ''} aria-label="前の人">‹</button>
@@ -1165,7 +1319,7 @@ function viewCompare(preWord) {
     ${far.length ? `<div class="an-block">
       <h3>あなたから遠い解釈</h3>
       <div class="cmp-grid">${far.map(card).join('')}</div>
-      <p class="sample-note" style="margin:6px 0 0">同じ「${w.label}」という言葉を、この人たちはなぜこう捉えたのでしょう。カードの人のページで、ほかの言葉の解釈も読んでみてください。</p>
+      <p class="sample-note" style="margin:6px 0 0">同じ「${w.label}」という言葉を、この人たちはなぜこう捉えたのでしょう。その人のページで、ほかの言葉の解釈も読んでみてください。</p>
     </div>` : ''}
     ${sim.length ? `<div class="an-block">
       <h3>ことばが近い解釈</h3>
