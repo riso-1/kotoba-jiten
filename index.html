@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>本当の辞書？</title>
+<title>ばらばら辞典</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500;600;700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500;600;700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Shippori+Mincho:wght@500;600&display=swap" rel="stylesheet">
 <!-- Adobe Fonts（秀英初号明朝：タイトル用）。読み込めないときは Zen Old Mincho で表示される -->
 <script>
   (function(d) {
@@ -361,7 +361,7 @@
   .cover { max-width: 760px; margin: 0 auto; padding-top: 40px; }
   .titlebox { border: 1px solid var(--ink); outline: 1px solid var(--ink); outline-offset: 5px; padding: 36px 20px 40px; margin: 6px auto 54px; max-width: 540px; }
   .titlebox .ed { font-family: var(--sans); font-size: 11px; letter-spacing: .3em; color: var(--sub); }
-  .titlebox h1 { font-weight: 800; letter-spacing: .1em; margin: 0 0 14px; font-size: clamp(34px, 6vw, 56px); line-height: 1.3; position: relative; left: .2em; }
+  .titlebox h1 { font-weight: 800; letter-spacing: .1em; margin: 0 0 14px; font-size: clamp(34px, 6vw, 56px); line-height: 1.3; position: relative; left: .05em; }
   .t-no { font-size: .7em; }
   .t-q { color: var(--red); display: inline-block; transform: translateY(.15em) rotate(25deg); }
   .t-no:not(.t-q) { font-size: .82em; margin: 0 .1em 0 .05em; }
@@ -398,7 +398,7 @@
   .word-head .meta { font-family: var(--sans); font-size: 12px; margin-top: 6px; }
   .grid { display: block; max-width: 860px; }
   .wordpage { max-width: 860px; margin: 0 auto; }
-  .sense { display: grid; grid-template-columns: 2.2em minmax(0, 1fr); gap: 0 12px; padding: 20px 0; border-bottom: 1px dotted var(--line); cursor: pointer; outline: none; }
+  .sense { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 0 10px; padding: 20px 0; border-bottom: 1px dotted var(--line); cursor: pointer; outline: none; }
   .sense:focus-visible { background: rgba(178,58,42,.05); }
   .sno { display: inline-flex; align-items: center; justify-content: center; width: 1.8em; height: 1.8em; border-radius: 50%; background: var(--red); color: var(--paper); font-family: var(--sans); font-size: 12px; margin-top: 5px; }
   .sword { display: inline-block; font-weight: 800; font-size: 14px; text-decoration: none; margin-bottom: 2px; }
@@ -473,8 +473,8 @@
   }
 
   /* タイトルだけ秀英初号明朝（Adobe Fonts） */
-  :root { --title: "dnp-shuei-shogomincho-std", var(--serif); }
-  header.site .logo, .titlebox h1 { font-family: var(--title); font-weight: 700; }
+  :root { --title: "tot-shizukasmudgemin-stdn", var(--serif); }
+  header.site .logo, .titlebox h1 { font-family: var(--title); font-weight: 600; }
   header.site .logo small { font-family: var(--sans); font-weight: 400; }
 
   /* ===== メニュー案A：主要4つ＋目次 ===== */
@@ -492,7 +492,7 @@
   body.toc-open .toc-backdrop { opacity: 1; }
   .toc-in { padding: 26px 30px 48px; }
   .toc-head { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--ink); padding-bottom: 12px; margin-bottom: 8px; }
-  .toc-head h2 { margin: 0; font-family: var(--title); font-weight: 700; font-size: 26px; letter-spacing: .4em; }
+  .toc-head h2 { margin: 0; font-family: var(--title); font-weight: 600; font-size: 26px; letter-spacing: .4em; }
   .toc-close { background: none; border: none; cursor: pointer; font-family: var(--sans); font-size: 12px; color: var(--sub); letter-spacing: .1em; padding: 4px 0; }
   .toc-close:hover { color: var(--ink); }
   .toc .grp { padding: 6px 0; }
@@ -508,11 +508,100 @@
     .toc-in { padding: 20px 22px 40px; }
   }
   @media (prefers-reduced-motion: reduce) { .toc, .toc-backdrop { transition: none; } }
+
+  /* ===== ばらばら：少しずつズレた要素 ===== */
+  /* タイトルの文字が1字ずつずれる */
+  .bara { display: inline-block; }
+  .bara i { font-style: normal; display: inline-block; transform: translateY(var(--y)) rotate(var(--r)); transition: transform .4s ease; }
+  .titlebox h1:hover .bara i, header.site .logo:hover .bara i { transform: translateY(calc(var(--y) * 1.8)) rotate(calc(var(--r) * 1.8)); }
+  /* 表紙の枠：4本の線がつながらず、それぞれ少しずれて傾く */
+  .titlebox { position: relative; outline: none; border: none; }
+  .titlebox .s { position: absolute; background: var(--ink); pointer-events: none; }
+  .titlebox .s.t { top: 0; left: -12px; right: 26px; height: 1px; transform: rotate(-1.2deg); }
+  .titlebox .s.b { bottom: 4px; left: 22px; right: -16px; height: 1px; transform: rotate(.8deg); }
+  .titlebox .s.l { left: 6px; top: -14px; bottom: 18px; width: 1px; transform: rotate(1.5deg); }
+  .titlebox .s.r { right: 2px; top: 16px; bottom: -12px; width: 1px; transform: rotate(-1deg); }
+  @media (max-width: 760px) {
+    .titlebox .s.t { left: -4px; right: 18px; } .titlebox .s.b { left: 14px; right: -4px; }
+  }
+  /* 本棚：本が少しずつ傾いて並ぶ */
+  .book { transform-origin: 50% 100%; transform: rotate(var(--tilt, 0deg)); }
+  .book.b1 { --tilt: -1deg; } .book.b2 { --tilt: .6deg; } .book.b3 { --tilt: -.4deg; } .book.b4 { --tilt: 1.6deg; } .book.b5 { --tilt: -.8deg; }
+  .book:hover, .book:focus-visible { transform: translateY(-14px) rotate(var(--tilt, 0deg)); }
+  /* 傾いた「幸せ」と「居場所」が重ならないよう、間をあける */
+  .book.b4 { margin-right: 10px; } .book.b2 { margin-right: 4px; }
+  @media (max-width: 760px) { .book.b4 { margin-right: 8px; } .book.b2 { margin-right: 3px; } }
+  .books.picking .book:not(.pick) { transform: rotate(var(--tilt, 0deg)); }
+  /* 見出し：下線が二重にずれる */
+  .prose h2 { position: relative; }
+  .prose h2::after { content: ""; position: absolute; left: 6px; right: -4px; bottom: -5px; border-bottom: 1px solid var(--red); opacity: .5; transform: rotate(-.35deg); transform-origin: left; }
+  /* 辞書ページ：解釈ひとつ（本文・理由・イメージ・考えた人）をひとまとまりにして、ばらばらに置く */
+  .sense { --k: 1; margin: calc(var(--gap, 0px) * var(--k)) calc(var(--dr, 0) * var(--k) * 1%) 0 calc(var(--dl, 0) * var(--k) * 1%); }
+  .sense .sno { transform: rotate(var(--rot, 0deg)); }
+  .sno { line-height: 1; padding-bottom: .16em; box-sizing: border-box; }
+  .reader .sense { margin: 0; }
+  @media (max-width: 760px) { .sense { --k: .5; } }
+  @media (prefers-reduced-motion: reduce) { .bara i { transition: none; } }
+
+  /* ===== 生きている文字：1文字ずつずれて集まり、ゆっくり揺れる ===== */
+  /* 解釈の文章、表紙のサブタイトル、はじめにの一文、人から読むの解釈、ことばの声、おわりにの問い */
+  .live .ch { display: inline-block; white-space: pre; transform: translate(var(--x), var(--y)) rotate(var(--r)); opacity: 0;
+    transition: transform 2.8s cubic-bezier(.2,.6,.2,1) var(--d), opacity 2s ease var(--d); }
+  .live.alive .ch { opacity: 1; transform: translate(0, var(--sy)) rotate(var(--sr)); }
+  .live.alive.settled .ch { transition: transform 1.4s cubic-bezier(.3,.6,.3,1); animation: ch-drift var(--t) ease-in-out var(--d2) infinite alternate; }
+  .live.alive.settled:hover .ch, .sense:hover .live .ch, .sense:focus-visible .live .ch, .person-entry:hover .live .ch { animation-play-state: paused; }
+  @keyframes ch-drift {
+    from { transform: translate(0, var(--sy)) rotate(var(--sr)); }
+    to   { transform: translate(var(--dx), calc(var(--sy) * -1)) rotate(calc(var(--sr) * -1)); }
+  }
+  /* まとまり全体もかすかに呼吸する */
+  .sense.alive .sbody, .person-entry.alive, .voice.alive { animation: s-breathe var(--bt, 14s) ease-in-out infinite alternate; }
+  @keyframes s-breathe { from { transform: translateY(0); } to { transform: translateY(-2px) rotate(var(--br, .15deg)); } }
+  @media (prefers-reduced-motion: reduce) {
+    .live .ch { opacity: 1; transition: none; transform: translate(0, var(--sy)) rotate(var(--sr)); }
+    .live.alive.settled .ch, .sense.alive .sbody, .person-entry.alive, .voice.alive { animation: none; }
+  }
+
+  /* ===== 解釈の文章：しっぽり明朝 ===== */
+  .sense .def, .person-entry blockquote { font-family: "Shippori Mincho", var(--serif); font-weight: 600; }
+
+  /* ===== 理由と本文：ゴシック（見出しや太字の行は Zen Old Mincho のまま） ===== */
+  :root { --body: var(--sans); }
+  body { font-family: var(--body); }
+
+  /* 表紙の本の背表紙の文字は、タイトルと同じ書体 */
+  .book .t { font-family: var(--title); font-weight: 600; }
+
+  /* 辞書ページ：スクロールすると、解釈がひとつずつ現れる */
+  html.live-on .sense { transition: opacity 3.2s cubic-bezier(.4,0,.2,1), transform 3.8s cubic-bezier(.2,.6,.2,1), filter 3.2s ease; }
+  html.live-on .sense:not(.alive) { opacity: 0; filter: blur(6px); transform: translateY(18px) rotate(var(--ir, 0deg)); }
+  @media (prefers-reduced-motion: reduce) { html.live-on .sense:not(.alive) { opacity: 1; transform: none; filter: none; } }
+
+  /* ===== 解釈の文章：人が書いていくように、1文字ずつ現れる ===== */
+  .live.write .ch { opacity: 0; filter: blur(2.5px); transform: translate(.06em, .14em) rotate(var(--sr)); animation: none;
+    transition: opacity .55s ease, filter .6s ease, transform .7s cubic-bezier(.2,.7,.2,1); }
+  .live.write .ch.on { opacity: 1; filter: none; transform: translate(0, var(--sy)) rotate(var(--sr)); }
+  .caret { display: inline-block; width: 2px; height: 1.05em; margin-right: -2px; vertical-align: -.15em; background: var(--red); border-radius: 1px; animation: caret-blink 1s steps(1) infinite; }
+  @keyframes caret-blink { 50% { opacity: 0; } }
+  /* 書き終わるまで、理由・イメージ・考えた人は控えておく */
+  .sense .sbody > :not(.def):not(.sword), .person-entry > :not(blockquote):not(h3) { transition: opacity 1.4s ease .1s; }
+  .sense.writing .sbody > :not(.def):not(.sword), .person-entry.writing > :not(blockquote):not(h3) { opacity: 0; }
+  /* 解釈のまとまりは、書きはじめる前にそっと現れる */
+  html.live-on .sense { transition: opacity 1.4s ease, transform 1.8s cubic-bezier(.2,.6,.2,1), filter 1.2s ease; }
+  html.live-on .sense:not(.alive) { filter: blur(3px); }
+  @media (prefers-reduced-motion: reduce) {
+    .live.write .ch { opacity: 1; filter: none; transform: translate(0, var(--sy)) rotate(var(--sr)); transition: none; }
+    .caret { display: none; }
+  }
+
+  /* ===== 文字のばらつきはなくし、揃った状態にする（タイトル・動く文字とも） ===== */
+  .bara i, .titlebox h1:hover .bara i, header.site .logo:hover .bara i { transform: none; }
+  .live.alive.settled .ch { animation: none; }
 </style>
 </head>
 <body>
 <header class="site">
-  <a class="logo" href="#/">本当<span class="t-no">の</span>辞書<span class="t-no t-q">？</span><small>HONTOU NO JISHO</small></a>
+  <a class="logo" href="#/"><span class="bara" aria-label="ばらばら辞典"><i aria-hidden="true" style="--y:-.05em;--r:-4deg">ば</i><i aria-hidden="true" style="--y:.07em;--r:3deg">ら</i><i aria-hidden="true" style="--y:-.02em;--r:5deg">ば</i><i aria-hidden="true" style="--y:.09em;--r:-3deg">ら</i><i aria-hidden="true" style="--y:-.06em;--r:-2deg">辞</i><i aria-hidden="true" style="--y:.03em;--r:4deg">典</i></span><small>BARABARA JITEN</small></a>
   <nav id="nav" aria-label="メインメニュー">
     <a class="main-link" href="#/word/futsu" data-r="word">辞書をひらく</a>
     <a class="main-link" href="#/people" data-r="people">人から読む</a>
@@ -879,7 +968,7 @@ function rowsToEntries(rows) {
   return { entries, map: m, rowCount: body.length, skipped };
 }
 function downloadDataJs(list) {
-  const js = `// 本当の辞書 データ（${new Date().toLocaleString('ja-JP')} 書き出し）\n// このファイルを index.html と同じフォルダに置くと、辞書に表示されます。\nwindow.KOTOBA_DATA = ${JSON.stringify(list, null, 2)};\n`;
+  const js = `// ばらばら辞典 データ（${new Date().toLocaleString('ja-JP')} 書き出し）\n// このファイルを index.html と同じフォルダに置くと、辞書に表示されます。\nwindow.KOTOBA_DATA = ${JSON.stringify(list, null, 2)};\n`;
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([js], { type: 'text/javascript' }));
   a.download = 'data.js'; a.click();
@@ -931,6 +1020,19 @@ function imageColors(text) {
 const imageSwatches = e => { const c = chosenColor(e);
   if (c) return `<span class="swatch" style="--c:${c}" title="投稿者が選んだイメージの色"></span>`;
   return imageColors(e.image).map(o => `<span class="swatch" style="--c:${o.hex}" title="「${esc(o.name)}」から"></span>`).join(''); };
+
+// 解釈ごとに、ばらけ具合を決める（同じ解釈はいつも同じ位置）
+function scatter(e) {
+  let h = 2166136261;
+  for (const ch of String(e.text || '') + '|' + String(e.name || '') + '|' + String(e.word || '')) { h ^= ch.codePointAt(0); h = Math.imul(h, 16777619) >>> 0; }
+  const rnd = () => { h ^= h << 13; h >>>= 0; h ^= h >> 17; h ^= h << 5; h >>>= 0; return h / 4294967296; };
+  const room = 4 + rnd() * 14;          // まとまりを細くする幅（%）
+  const left = rnd() * room;            // そのうち左にとる幅
+  const rot = (rnd() * 12 - 6).toFixed(1);
+  const gap = Math.round(rnd() * 18);   // 上の余白のゆらぎ（px）
+  return `--dl:${left.toFixed(1)};--dr:${(room - left).toFixed(1)};--rot:${rot}deg;--gap:${gap}px`;
+}
+
 function cardHTML(e, no, showWord) {
   const w = wordById(e.word); const p = e.profile || {};
   const age = v => shown(v) && (v + (/^\d+$/.test(v) ? '歳' : ''));
@@ -938,7 +1040,7 @@ function cardHTML(e, no, showWord) {
   const who = [age(p.age), shown(p.role)].filter(Boolean).join('・');
   const ps = personOf(e);
   return `
-  <article class="card sense" tabindex="0" style="--c:${esc(e.color || w.color)}" aria-label="押すと、この解釈を考えた人がひらきます">
+  <article class="card sense" tabindex="0" style="--c:${esc(e.color || w.color)};${scatter(e)}" aria-label="押すと、この解釈を考えた人がひらきます">
     <span class="sno">${no}</span>
     <div class="sbody">
       ${showWord ? `<a class="sword" href="#/word/${w.id}">${w.yomi}<b>【</b>${w.label}<b>】</b></a>` : ''}
@@ -968,9 +1070,9 @@ function viewCover() {
   const all = allEntries();
   app.innerHTML = `
   <section class="cover fade">
-    <div class="titlebox">
-      <h1>本当<span class="t-no">の</span>辞書<span class="t-no t-q">？</span></h1>
-      <p class="lead"><span class="nb">人の数だけある、</span><span class="nb">言葉の解釈を集めた辞書です</span></p>
+    <div class="titlebox"><span class="s t" aria-hidden="true"></span><span class="s b" aria-hidden="true"></span><span class="s l" aria-hidden="true"></span><span class="s r" aria-hidden="true"></span>
+      <h1><span class="bara" aria-label="ばらばら辞典"><i aria-hidden="true" style="--y:-.05em;--r:-4deg">ば</i><i aria-hidden="true" style="--y:.07em;--r:3deg">ら</i><i aria-hidden="true" style="--y:-.02em;--r:5deg">ば</i><i aria-hidden="true" style="--y:.09em;--r:-3deg">ら</i><i aria-hidden="true" style="--y:-.06em;--r:-2deg">辞</i><i aria-hidden="true" style="--y:.03em;--r:4deg">典</i></span></h1>
+      <p class="lead"><span class="nb">人の数だけある、</span><span class="nb">言葉の解釈を集めた辞典です</span></p>
     </div>
     <p class="shelf-hint">気になる一冊を、手にとってください</p>
     <div class="shelf">
@@ -1026,16 +1128,14 @@ function viewWord(id, mode) {
   const href = x => `#/word/${x.id}${mode === 'read' ? '/read' : ''}`;
   const tabs = WORDS.map(x => `<a href="${href(x)}" class="${x.id === w.id ? 'on' : ''}">${x.label}</a>`).join('');
   const thumb = WORDS.map(x => `<a href="${href(x)}" class="${x.id === w.id ? 'on' : ''}">${x.label}</a>`).join('');
-  const page = '一二三四五'[WORDS.indexOf(w)] || '';
   app.innerHTML = `
   <section class="fade wordpage">
     <nav class="thumb" aria-label="言葉を切り替える">${thumb}</nav>
-    <div class="hashira"><span>${w.yomi} ― ${w.label}</span><span>本当の辞書？</span><span>${page}</span></div>
     <div class="word-tabs">${tabs}</div>
     <div class="word-head">
       <div>
         <h2 class="hw">${w.yomi}<b>【</b>${w.label}<b>】</b></h2>
-        <div class="meta">${entries.length}人の解釈が並んでいます。どれも正解で、どれも途中です。</div>
+        <div class="meta">${entries.length}人の解釈が並んでいます。</div>
       </div>
       <div class="toolbar">
         <a class="chip ${mode !== 'read' ? 'on' : ''}" href="#/word/${w.id}">一覧</a>
@@ -1220,7 +1320,7 @@ function viewAbout() {
   app.innerHTML = `
   <article class="prose fade">
     <h2>掲載について</h2>
-    <p class="lead">「本当の辞書？」は、女子美術大学 共創デザイン学科の卒業研究「言葉の解釈の違いから、他者を知る」の制作物です。ひとつの言葉に対するさまざまな解釈を、ひとつの答えにまとめずに並べています。</p>
+    <p class="lead">「ばらばら辞典」は、女子美術大学 共創デザイン学科の卒業研究「言葉の解釈の違いから、他者を知る」の制作物です。ひとつの言葉に対するさまざまな解釈を、ひとつの答えにまとめずに並べています。</p>
 
     <h3>掲載している解釈について</h3>
     <ul>
@@ -1465,7 +1565,7 @@ function viewCompare(preWord) {
 
 function viewEnd() {
   app.innerHTML = `
-  <article class="prose fade">
+  <article class="prose fade end">
     <h2>おわりに</h2>
     <p class="lead">ここまで読んでくださり、ありがとうございました。最後に、いくつか問いを置いておきます。</p>
     <ol>
@@ -1647,7 +1747,7 @@ const catOf = (e, a, d) => { const id = dimMap(a, d.id)[entryKey(e)]; return d.c
 const NONE_CAT = { id: null, label: '未分類', short: '未分類', color: '#e5ebed', none: true };
 
 function downloadAnalysisJs(a) {
-  const js = `// 本当の辞書 分類・考察データ（${new Date().toLocaleString('ja-JP')} 書き出し）\n// このファイルを index.html と同じフォルダに置くと、分析ページに表示されます。\nwindow.KOTOBA_ANALYSIS = ${JSON.stringify(a, null, 2)};\n`;
+  const js = `// ばらばら辞典 分類・考察データ（${new Date().toLocaleString('ja-JP')} 書き出し）\n// このファイルを index.html と同じフォルダに置くと、分析ページに表示されます。\nwindow.KOTOBA_ANALYSIS = ${JSON.stringify(a, null, 2)};\n`;
   const el = document.createElement('a');
   el.href = URL.createObjectURL(new Blob([js], { type: 'text/javascript' }));
   el.download = 'analysis.js'; el.click();
@@ -1979,6 +2079,113 @@ loadRemote().then(ok => {
   bd.addEventListener('click', () => shut(true));
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.body.classList.contains('toc-open')) shut(true); });
   toc.addEventListener('click', e => { if (e.target.closest('a')) shut(false); });
+})();
+</script>
+<script>
+// 文字を1文字ずつ少しずれた「生きている」文字にする（効果的な場所だけ）
+(() => {
+  const TARGETS = [
+    '.sense .def',            // 辞書ページ・逆引きの解釈
+    '.titlebox .lead',        // 表紙のサブタイトル
+    '.prose .key',            // はじめにの「正解を探すための辞書ではありません。」
+    '.person-entry blockquote', // 人から読む：ひとりの解釈
+    '.person-tile .self',     // 人から読む：今の自分を表す言葉
+    '.voice q',               // ことばの声
+    '.prose.end ol li',       // おわりにの問い
+  ].join(', ');
+  const HOSTS = '.sense, .person-entry, .voice';
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.documentElement.classList.add('live-on');
+  const R = (a, b) => (a + Math.random() * (b - a)).toFixed(3);
+  // 画面に入ったものを順番待ちに入れて、ひとつずつ間をあけて出す
+  const queue = []; let pumping = false;
+  // 解釈の文章は、人が書いていくように1文字ずつ現れる
+  const WRITE = '.sense .def, .person-entry blockquote';
+  const finishWrite = (el, host) => {
+    el.querySelectorAll('.ch').forEach(c => c.classList.add('on'));
+    el.querySelector('.caret')?.remove();
+    if (host) { host.classList.remove('writing'); host.classList.add('written'); }
+  };
+  const write = (el, host, instant) => {
+    if (instant) return finishWrite(el, host);
+    const chars = [...el.querySelectorAll('.ch')];
+    const caret = document.createElement('span'); caret.className = 'caret'; caret.setAttribute('aria-hidden', 'true');
+    let i = 0;
+    const step = () => {
+      if (!el.isConnected) return;
+      if (i >= chars.length) { setTimeout(() => finishWrite(el, host), 700); return; }
+      const c = chars[i++];
+      c.classList.add('on'); c.after(caret);
+      const t = c.textContent;
+      // 書く速さに少しムラをつけ、句読点では少し手を止める
+      let d = 70 + Math.random() * 90;
+      if (/[、，,]$/.test(t)) d += 260; else if (/[。．！？!?]$/.test(t)) d += 480;
+      setTimeout(step, d);
+    };
+    el.querySelector('.ch')?.before(caret);
+    setTimeout(step, 650);
+  };
+  const reveal = (el, instant) => {
+    el.classList.add('alive');
+    const host = el.closest(HOSTS); if (host) host.classList.add('alive');
+    if (el.classList.contains('write')) return write(el, host, instant);
+    const n = el.querySelectorAll('.ch').length;
+    setTimeout(() => el.classList.add('settled'), 2800 + Math.min(n, 60) * 40);
+  };
+  const pump = () => {
+    if (!queue.length) { pumping = false; return; }
+    pumping = true;
+    const el = queue.shift();
+    if (!el.isConnected) return pump();
+    // もう画面の上に過ぎたものは、書かずにすぐ出して次へ。たくさん待っているときは間を少し詰める
+    const past = el.getBoundingClientRect().bottom < 0;
+    reveal(el, past);
+    if (past) return pump();
+    const gap = el.closest('.sense, .person-entry') ? (queue.length > 3 ? 700 : 1500) : 250;
+    setTimeout(pump, gap);
+  };
+  const io = new IntersectionObserver(es => {
+    es.filter(en => en.isIntersecting)
+      .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
+      .forEach(en => { io.unobserve(en.target); queue.push(en.target); });
+    if (!pumping) pump();
+  }, { rootMargin: '0px 0px -8% 0px' });
+  const liven = el => {
+    if (el.dataset.alive) return; el.dataset.alive = '1';
+    el.classList.add('live');
+    const isWrite = el.matches(WRITE);
+    if (isWrite) el.classList.add('write');
+    let k = 0;
+    const walk = node => {
+      [...node.childNodes].forEach(c => {
+        if (c.nodeType === 3) {
+          const frag = document.createDocumentFragment();
+          for (const ch of c.textContent) {
+            if (ch === '\n') { frag.appendChild(document.createTextNode(ch)); continue; }
+            // 句読点や閉じかっこは前の文字とくっつけて、行頭に来ないようにする
+            if (/[、。，．」』）)！？!?ー〜…・]/.test(ch) && frag.lastChild && frag.lastChild.nodeType === 1) { frag.lastChild.textContent += ch; continue; }
+            const sp = document.createElement('span');
+            sp.className = 'ch'; sp.textContent = ch;
+            sp.style.cssText = `--x:${R(-.25,.25)}em;--y:${R(-.6,.6)}em;--r:${R(-14,14)}deg;--d:${Math.min(k,60)*40}ms;` +
+              `--sy:0em;--sr:0deg;--dx:${R(-.03,.03)}em;--t:${R(4.5,8.5)}s;--d2:-${R(0,8)}s`;
+            frag.appendChild(sp); k++;
+          }
+          c.replaceWith(frag);
+        } else if (c.nodeType === 1 && !c.classList.contains('mine-badge')) walk(c);
+      });
+    };
+    walk(el);
+    const host = el.closest(HOSTS);
+    if (host) { host.style.setProperty('--bt', R(12, 18) + 's'); host.style.setProperty('--br', R(-.25, .25) + 'deg');
+      host.style.setProperty('--ix', R(-40, 40) + 'px'); host.style.setProperty('--ir', R(-1.5, 1.5) + 'deg'); }
+    if (isWrite && host && !reduce) host.classList.add('writing');
+    if (reduce) { el.classList.add('alive', 'settled'); if (host) host.classList.add('alive'); if (isWrite) finishWrite(el, host); }
+    else io.observe(el);
+  };
+  const scan = root => root.querySelectorAll(TARGETS).forEach(el => { if (!el.dataset.alive) liven(el); });
+  const app = document.getElementById('app') || document.body;
+  new MutationObserver(() => scan(app)).observe(app, { childList: true, subtree: true });
+  scan(app);
 })();
 </script>
 </body>
