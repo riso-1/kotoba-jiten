@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ばらばら辞典</title>
+<title>ばらばら辞書</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500;600;700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Shippori+Mincho:wght@500;600&display=swap" rel="stylesheet">
@@ -20,7 +20,7 @@
 </script>
 <style>
   :root {
-    /* デザイン：国語辞典（生成りの紙・墨・朱） */
+    /* デザイン：国語辞書（生成りの紙・墨・朱） */
     --ink: #1f1c18;
     --sub: #6d665c;
     --accent: #2b2722;
@@ -319,7 +319,7 @@
   }
 
   /* =========================================================
-     国語辞典のデザイン（上の基本スタイルを上書きする）
+     国語辞書のデザイン（上の基本スタイルを上書きする）
      ========================================================= */
   body { background: var(--bg); font-family: var(--serif); }
   header.site { background: rgba(250,247,240,.95); border-bottom: 3px double var(--ink); padding: 14px 32px 10px; align-items: flex-end; }
@@ -532,9 +532,6 @@
   .book.b4 { margin-right: 10px; } .book.b2 { margin-right: 4px; }
   @media (max-width: 760px) { .book.b4 { margin-right: 8px; } .book.b2 { margin-right: 3px; } }
   .books.picking .book:not(.pick) { transform: rotate(var(--tilt, 0deg)); }
-  /* 見出し：下線が二重にずれる */
-  .prose h2 { position: relative; }
-  .prose h2::after { content: ""; position: absolute; left: 6px; right: -4px; bottom: -5px; border-bottom: 1px solid var(--red); opacity: .5; transform: rotate(-.35deg); transform-origin: left; }
   /* 辞書ページ：解釈ひとつ（本文・理由・イメージ・考えた人）をひとまとまりにして、ばらばらに置く */
   .sense { --k: 1; margin: calc(var(--gap, 0px) * var(--k)) calc(var(--dr, 0) * var(--k) * 1%) 0 calc(var(--dl, 0) * var(--k) * 1%); }
   .sense .sno { transform: rotate(var(--rot, 0deg)); }
@@ -597,11 +594,20 @@
   /* ===== 文字のばらつきはなくし、揃った状態にする（タイトル・動く文字とも） ===== */
   .bara i, .titlebox h1:hover .bara i, header.site .logo:hover .bara i { transform: none; }
   .live.alive.settled .ch { animation: none; }
+
+  /* ===== 目次：「読む」「参加する」「この辞書について」の3つに分ける ===== */
+  .toc .sec { margin-top: 20px; }
+  .toc .sec h3 { margin: 0 0 4px; font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: .3em; color: var(--sub); }
+  .toc .sec .row { display: block; padding: 8px 0 8px 14px; border-left: 2px solid var(--line); }
+  .toc .sec .row .lb { display: inline-block; font-size: 18px; letter-spacing: .08em; border-bottom: none; }
+  .toc .sec .row .hint { display: block; margin-top: 1px; font-size: 11.5px; letter-spacing: .04em; white-space: normal; }
+  .toc .sec .row:hover, .toc .sec .row.on { border-left-color: var(--red); }
+  .toc .sec .row.on .lb { color: var(--red); }
 </style>
 </head>
 <body>
 <header class="site">
-  <a class="logo" href="#/"><span class="bara" aria-label="ばらばら辞典"><i aria-hidden="true" style="--y:-.05em;--r:-4deg">ば</i><i aria-hidden="true" style="--y:.07em;--r:3deg">ら</i><i aria-hidden="true" style="--y:-.02em;--r:5deg">ば</i><i aria-hidden="true" style="--y:.09em;--r:-3deg">ら</i><i aria-hidden="true" style="--y:-.06em;--r:-2deg">辞</i><i aria-hidden="true" style="--y:.03em;--r:4deg">典</i></span><small>BARABARA JITEN</small></a>
+  <a class="logo" href="#/"><span class="bara" aria-label="ばらばら辞書"><i aria-hidden="true" style="--y:-.05em;--r:-4deg">ば</i><i aria-hidden="true" style="--y:.07em;--r:3deg">ら</i><i aria-hidden="true" style="--y:-.02em;--r:5deg">ば</i><i aria-hidden="true" style="--y:.09em;--r:-3deg">ら</i><i aria-hidden="true" style="--y:-.06em;--r:-2deg">辞</i><i aria-hidden="true" style="--y:.03em;--r:4deg">書</i></span><small>BARABARA JISHO</small></a>
   <nav id="nav" aria-label="メインメニュー">
     <a class="main-link" href="#/word/futsu" data-r="word">辞書をひらく</a>
     <a class="main-link" href="#/people" data-r="people">人から読む</a>
@@ -615,28 +621,22 @@
 <aside class="toc" id="toc" aria-label="目次" hidden>
   <div class="toc-in">
     <div class="toc-head"><h2>目次</h2><button class="toc-close" type="button">閉じる ✕</button></div>
-      <div class="grp">
-      <a class="row" href="#/intro" data-r="intro"><span class="lb">はじめに</span><span class="dots"></span><span class="hint">この辞書について</span></a>
-      </div>
-      <div class="grp">
-      <a class="row" href="#/word/futsu" data-r="word"><span class="lb">辞書をひらく</span><span class="dots"></span><span class="hint">言葉ごとに読む</span></a>
-      <a class="row" href="#/search" data-r="search"><span class="lb">逆引き</span><span class="dots"></span><span class="hint">キーワードからさがす</span></a>
-      <a class="row" href="#/people" data-r="people"><span class="lb">人から読む</span><span class="dots"></span><span class="hint">ひとりの、5つの解釈</span></a>
-      <a class="row" href="#/voices" data-r="voices"><span class="lb">ことばの声</span><span class="dots"></span><span class="hint">言葉そのものへの声</span></a>
-      </div>
-      <div class="grp">
-      <a class="row" href="#/compare" data-r="compare"><span class="lb">くらべる</span><span class="dots"></span><span class="hint">あなたの解釈とくらべる</span></a>
-      <a class="row" href="#/add" data-r="add"><span class="lb">解釈をくわえる</span><span class="dots"></span><span class="hint">あなたの解釈を送る</span></a>
-      </div>
-      <div class="grp">
-      <a class="row" href="#/analysis" data-r="analysis"><span class="lb">分析</span><span class="dots"></span><span class="hint">解釈の傾向を見る</span></a>
-      </div>
-      <div class="grp">
-      <a class="row" href="#/end" data-r="end"><span class="lb">おわりに</span><span class="dots"></span><span class="hint">最後の問い</span></a>
-      </div>
-      <div class="grp">
-      <a class="row" href="#/about" data-r="about"><span class="lb">掲載について</span><span class="dots"></span><span class="hint">掲載・お問い合わせ</span></a>
-      </div>
+    <div class="sec"><h3>読む</h3>
+      <a class="row" href="#/word/futsu" data-r="word"><span class="lb">辞書をひらく</span><span class="hint">5つの言葉の解釈を読む</span></a>
+      <a class="row" href="#/people" data-r="people"><span class="lb">人から読む</span><span class="hint">ひとりの人の、5つの解釈</span></a>
+      <a class="row" href="#/search" data-r="search"><span class="lb">逆引き</span><span class="hint">キーワードから解釈をさがす</span></a>
+      <a class="row" href="#/voices" data-r="voices"><span class="lb">ことばの声</span><span class="hint">言葉そのものについての声</span></a>
+    </div>
+    <div class="sec"><h3>参加する</h3>
+      <a class="row" href="#/compare" data-r="compare"><span class="lb">くらべる</span><span class="hint">あなたの解釈とくらべる</span></a>
+      <a class="row" href="#/add" data-r="add"><span class="lb">解釈をくわえる</span><span class="hint">あなたの解釈を送る</span></a>
+    </div>
+    <div class="sec"><h3>この辞書について</h3>
+      <a class="row" href="#/intro" data-r="intro"><span class="lb">はじめに</span><span class="hint">この辞書について</span></a>
+      <a class="row" href="#/analysis" data-r="analysis"><span class="lb">分析</span><span class="hint">解釈の傾向を見る</span></a>
+      <a class="row" href="#/end" data-r="end"><span class="lb">おわりに</span><span class="hint">最後の問い</span></a>
+      <a class="row" href="#/about" data-r="about"><span class="lb">掲載について</span><span class="hint">掲載・お問い合わせ</span></a>
+    </div>
   </div>
 </aside>
 <main id="app"></main>
@@ -968,7 +968,7 @@ function rowsToEntries(rows) {
   return { entries, map: m, rowCount: body.length, skipped };
 }
 function downloadDataJs(list) {
-  const js = `// ばらばら辞典 データ（${new Date().toLocaleString('ja-JP')} 書き出し）\n// このファイルを index.html と同じフォルダに置くと、辞書に表示されます。\nwindow.KOTOBA_DATA = ${JSON.stringify(list, null, 2)};\n`;
+  const js = `// ばらばら辞書 データ（${new Date().toLocaleString('ja-JP')} 書き出し）\n// このファイルを index.html と同じフォルダに置くと、辞書に表示されます。\nwindow.KOTOBA_DATA = ${JSON.stringify(list, null, 2)};\n`;
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([js], { type: 'text/javascript' }));
   a.download = 'data.js'; a.click();
@@ -1071,8 +1071,8 @@ function viewCover() {
   app.innerHTML = `
   <section class="cover fade">
     <div class="titlebox"><span class="s t" aria-hidden="true"></span><span class="s b" aria-hidden="true"></span><span class="s l" aria-hidden="true"></span><span class="s r" aria-hidden="true"></span>
-      <h1><span class="bara" aria-label="ばらばら辞典"><i aria-hidden="true" style="--y:-.05em;--r:-4deg">ば</i><i aria-hidden="true" style="--y:.07em;--r:3deg">ら</i><i aria-hidden="true" style="--y:-.02em;--r:5deg">ば</i><i aria-hidden="true" style="--y:.09em;--r:-3deg">ら</i><i aria-hidden="true" style="--y:-.06em;--r:-2deg">辞</i><i aria-hidden="true" style="--y:.03em;--r:4deg">典</i></span></h1>
-      <p class="lead"><span class="nb">人の数だけある、</span><span class="nb">言葉の解釈を集めた辞典です</span></p>
+      <h1><span class="bara" aria-label="ばらばら辞書"><i aria-hidden="true" style="--y:-.05em;--r:-4deg">ば</i><i aria-hidden="true" style="--y:.07em;--r:3deg">ら</i><i aria-hidden="true" style="--y:-.02em;--r:5deg">ば</i><i aria-hidden="true" style="--y:.09em;--r:-3deg">ら</i><i aria-hidden="true" style="--y:-.06em;--r:-2deg">辞</i><i aria-hidden="true" style="--y:.03em;--r:4deg">書</i></span></h1>
+      <p class="lead"><span class="nb">人の数だけある、</span><span class="nb">言葉の解釈を集めた辞書です</span></p>
     </div>
     <p class="shelf-hint">気になる一冊を、手にとってください</p>
     <div class="shelf">
@@ -1320,7 +1320,7 @@ function viewAbout() {
   app.innerHTML = `
   <article class="prose fade">
     <h2>掲載について</h2>
-    <p class="lead">「ばらばら辞典」は、女子美術大学 共創デザイン学科の卒業研究「言葉の解釈の違いから、他者を知る」の制作物です。ひとつの言葉に対するさまざまな解釈を、ひとつの答えにまとめずに並べています。</p>
+    <p class="lead">「ばらばら辞書」は、女子美術大学 共創デザイン学科の卒業研究「言葉の解釈の違いから、他者を知る」の制作物です。ひとつの言葉に対するさまざまな解釈を、ひとつの答えにまとめずに並べています。</p>
 
     <h3>掲載している解釈について</h3>
     <ul>
@@ -1747,7 +1747,7 @@ const catOf = (e, a, d) => { const id = dimMap(a, d.id)[entryKey(e)]; return d.c
 const NONE_CAT = { id: null, label: '未分類', short: '未分類', color: '#e5ebed', none: true };
 
 function downloadAnalysisJs(a) {
-  const js = `// ばらばら辞典 分類・考察データ（${new Date().toLocaleString('ja-JP')} 書き出し）\n// このファイルを index.html と同じフォルダに置くと、分析ページに表示されます。\nwindow.KOTOBA_ANALYSIS = ${JSON.stringify(a, null, 2)};\n`;
+  const js = `// ばらばら辞書 分類・考察データ（${new Date().toLocaleString('ja-JP')} 書き出し）\n// このファイルを index.html と同じフォルダに置くと、分析ページに表示されます。\nwindow.KOTOBA_ANALYSIS = ${JSON.stringify(a, null, 2)};\n`;
   const el = document.createElement('a');
   el.href = URL.createObjectURL(new Blob([js], { type: 'text/javascript' }));
   el.download = 'analysis.js'; el.click();
