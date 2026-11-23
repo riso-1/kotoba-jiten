@@ -541,7 +541,7 @@
   @media (prefers-reduced-motion: reduce) { .bara i { transition: none; } }
 
   /* ===== 生きている文字：1文字ずつずれて集まり、ゆっくり揺れる ===== */
-  /* 解釈の文章、表紙のサブタイトル、はじめにの一文、人から読むの解釈、ことばの声、おわりにの問い */
+  /* 解釈の文章、表紙のサブタイトル、はじめにの一文、人から読むの解釈、「言葉」についてのアンケート、おわりにの問い */
   .live .ch { display: inline-block; white-space: pre; transform: translate(var(--x), var(--y)) rotate(var(--r)); opacity: 0;
     transition: transform 2.8s cubic-bezier(.2,.6,.2,1) var(--d), opacity 2s ease var(--d); }
   .live.alive .ch { opacity: 1; transform: translate(0, var(--sy)) rotate(var(--sr)); }
@@ -591,8 +591,7 @@
     .caret { display: none; }
   }
 
-  /* ===== 文字のばらつきはなくし、揃った状態にする（タイトル・動く文字とも） ===== */
-  .bara i, .titlebox h1:hover .bara i, header.site .logo:hover .bara i { transform: none; }
+  /* ===== 文字のばらつきはなくし、揃った状態にする（タイトル「ばらばら辞書」だけは、文字のズレを残す） ===== */
   .live.alive.settled .ch { animation: none; }
 
   /* ===== 目次：「読む」「参加する」「この辞書について」の3つに分ける ===== */
@@ -625,7 +624,7 @@
       <a class="row" href="#/word/futsu" data-r="word"><span class="lb">辞書をひらく</span><span class="hint">5つの言葉の解釈を読む</span></a>
       <a class="row" href="#/people" data-r="people"><span class="lb">人から読む</span><span class="hint">ひとりの人の、5つの解釈</span></a>
       <a class="row" href="#/search" data-r="search"><span class="lb">逆引き</span><span class="hint">キーワードから解釈をさがす</span></a>
-      <a class="row" href="#/voices" data-r="voices"><span class="lb">ことばの声</span><span class="hint">言葉そのものについての声</span></a>
+      <a class="row" href="#/voices" data-r="voices"><span class="lb">「言葉」についてのアンケート</span><span class="hint">言葉そのものについての回答</span></a>
     </div>
     <div class="sec"><h3>参加する</h3>
       <a class="row" href="#/compare" data-r="compare"><span class="lb">くらべる</span><span class="hint">あなたの解釈とくらべる</span></a>
@@ -646,7 +645,7 @@
 <script src="data.js" onerror="this.remove()"></script>
 <!-- 分類・考察データ（任意）。分類作業の画面で書き出した analysis.js を置くと、分析ページに反映されます -->
 <script src="analysis.js" onerror="this.remove()"></script>
-<!-- アンケートの自由記述（言葉そのものについての設問）。「ことばの声」ページに表示されます -->
+<!-- アンケートの自由記述（言葉そのものについての設問）。『「言葉」についてのアンケート』ページに表示されます -->
 <script src="voices.js" onerror="this.remove()"></script>
 <script>
 /* =========================================================
@@ -1326,7 +1325,7 @@ function viewAbout() {
     <ul>
       <li>アンケートや投稿フォームで、<strong>辞書への掲載に同意いただいた方の回答</strong>を掲載しています。</li>
       <li>解釈・理由・イメージの文章は、いただいた<strong>原文のまま</strong>掲載しています。内容を書き換えることはありません。</li>
-      <li>「ことばの声」には、言葉そのものについての設問への回答を原文のまま掲載しています。「ある」「なし」などの短い回答と、制作者個人へのメッセージは省略しています。</li>
+      <li>『「言葉」についてのアンケート』には、言葉そのものについての設問への回答を原文のまま掲載しています。「ある」「なし」などの短い回答と、制作者個人へのメッセージは省略しています。</li>
       <li>逆引き用のキーワードは、文章中の表現から自動で付けています。回答者が付けたものではありません。</li>
       <li>イメージの文章に色の名前（「灰色」「薄いピンク」など）が書かれている場合は、その色を小さな丸で添えています。丸の色は言葉から自動で選んだもので、回答者が選んだ色ではありません。投稿で色を選んだ場合は、その色を表示します。</li>
       <li>解釈の下の「考えた人」には、回答者が入力したペンネーム・年代・立場などを表示しています。本名や連絡先はお聞きしていません。</li>
@@ -1583,8 +1582,8 @@ function viewVoices() {
   const who = p => [p.name, p.age, p.role].filter(v => v && v !== '回答しない').join('・');
   app.innerHTML = `
   <section class="fade" style="max-width:760px;margin:0 auto">
-    <div class="an-head"><span class="pill">アンケートから</span>
-      <h2>ことばの声</h2>
+    <div class="an-head">
+      <h2>「言葉」についてのアンケート</h2>
       <p class="sample-note">5つの言葉の解釈のほかに、言葉そのものについてもアンケートでたずねました。回答は原文のまま掲載しています。「ある」「なし」などの短い回答と、制作者個人へのメッセージは省略しました。</p>
     </div>
     ${groups.map(g => `<div class="an-block">
@@ -2090,7 +2089,7 @@ loadRemote().then(ok => {
     '.prose .key',            // はじめにの「正解を探すための辞書ではありません。」
     '.person-entry blockquote', // 人から読む：ひとりの解釈
     '.person-tile .self',     // 人から読む：今の自分を表す言葉
-    '.voice q',               // ことばの声
+    '.voice q',               // 「言葉」についてのアンケート
     '.prose.end ol li',       // おわりにの問い
   ].join(', ');
   const HOSTS = '.sense, .person-entry, .voice';
