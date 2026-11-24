@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ばらばら辞書</title>
+<meta name="description" content="ひとつのことばに、ひとの数だけの意味。「普通」「自由」「優しさ」「幸せ」「居場所」の5つの言葉について、さまざまな人の解釈を並べた辞書です。">
+<meta property="og:title" content="ばらばら辞書">
+<meta property="og:description" content="ひとつのことばに、ひとの数だけの意味。「普通」「自由」「優しさ」「幸せ」「居場所」の5つの言葉について、さまざまな人の解釈を並べた辞書です。">
+<meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500;600;700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Shippori+Mincho:wght@500;600&display=swap" rel="stylesheet">
@@ -320,7 +324,7 @@
      ========================================================= */
   body { background: var(--bg); font-family: var(--serif); }
   header.site { background: rgba(250,247,240,.95); border-bottom: 3px double var(--ink); padding: 14px 32px 10px; align-items: flex-end; }
-  header.site .logo { font-weight: 800; font-size: 20px; letter-spacing: .06em; line-height: 1.3; }
+  header.site .logo { font-weight: 900; font-size: 20px; letter-spacing: .06em; line-height: 1.3; }
   header.site .logo small { display: block; font-family: var(--sans); font-weight: 400; font-size: 9px; letter-spacing: .28em; color: var(--sub); }
   header.site nav { gap: 2px 16px; justify-content: flex-end; }
   header.site nav a { font-family: var(--sans); border-radius: 0; padding: 2px 0; border-bottom: 2px solid transparent; }
@@ -334,7 +338,7 @@
   .chip.on { background: var(--ink); border-color: var(--ink); color: var(--paper); }
   .prose, .an-block, .person-head, .person-entry, .person-tile { background: var(--paper); box-shadow: none; border: 1px solid var(--line); border-radius: 0; }
   .prose { border-top: 3px double var(--ink); }
-  .prose h2, .an-head h2, .person-head h2 { font-weight: 800; }
+  .prose h2, .an-head h2, .person-head h2 { font-weight: 900; }
   .prose h3, .an-block h3 { font-weight: 600; }
   .prose h3 { border-bottom-color: var(--ink); }
   .an-block.summary { border-top: 3px double var(--ink); }
@@ -358,7 +362,7 @@
   .cover { max-width: 760px; margin: 0 auto; padding-top: 40px; }
   .titlebox { border: 1px solid var(--ink); outline: 1px solid var(--ink); outline-offset: 5px; padding: 36px 20px 40px; margin: 6px auto 54px; max-width: 540px; }
   .titlebox .ed { font-family: var(--sans); font-size: 11px; letter-spacing: .3em; color: var(--sub); }
-  .titlebox h1 { font-weight: 800; letter-spacing: .1em; margin: 0 0 14px; font-size: clamp(34px, 6vw, 56px); line-height: 1.3; position: relative; left: .05em; }
+  .titlebox h1 { font-weight: 900; letter-spacing: .1em; margin: 0 0 14px; font-size: clamp(34px, 6vw, 56px); line-height: 1.3; position: relative; left: .05em; }
   .t-no { font-size: .7em; }
   .t-q { color: var(--red); display: inline-block; transform: translateY(.15em) rotate(25deg); }
   .t-no:not(.t-q) { font-size: .82em; margin: 0 .1em 0 .05em; }
@@ -390,7 +394,7 @@
 
   /* 辞書のページ：柱・見出し語・語義・爪 */
   .hashira { display: flex; justify-content: space-between; gap: 12px; font-family: var(--sans); font-size: 12px; color: var(--sub); letter-spacing: .15em; border-bottom: 1px solid var(--ink); padding: 0 0 6px; margin: 0 0 26px; }
-  .word-head h2.hw { font-weight: 800; font-size: 40px; letter-spacing: .08em; }
+  .word-head h2.hw { font-weight: 900; font-size: 40px; letter-spacing: .08em; }
   .hw b, .sword b { color: var(--ink); font-weight: 400; }
   .word-head .meta { font-family: var(--sans); font-size: 12px; margin-top: 6px; }
   .grid { display: block; max-width: 860px; }
@@ -411,7 +415,7 @@
     .sense .ill { width: 92px; align-self: start; margin-top: 6px; }
   }
   .sno { display: inline-flex; align-items: center; justify-content: center; width: 1.8em; height: 1.8em; border-radius: 50%; background: var(--ink); color: var(--paper); font-family: var(--sans); font-size: 12px; margin-top: 5px; }
-  .sword { display: inline-block; font-weight: 800; font-size: 14px; text-decoration: none; margin-bottom: 2px; }
+  .sword { display: inline-block; font-weight: 900; font-size: 14px; text-decoration: none; margin-bottom: 2px; }
   .sense .def { font-size: 20px; font-weight: 600; line-height: 1.7; margin: 0 0 6px; white-space: pre-line; overflow-wrap: anywhere; }
   .sense .why { font-size: 14.5px; line-height: 1.95; margin: 0 0 6px; color: #3c3730; white-space: pre-line; overflow-wrap: anywhere; }
   .sense .lb { font-family: var(--sans); font-size: 10px; color: var(--sub); border: 1px solid var(--line); padding: 1px 6px; margin-right: 8px; vertical-align: 2px; letter-spacing: .1em; }
@@ -645,12 +649,12 @@
       <a class="row" href="#/intro" data-r="intro"><span class="lb">はじめに</span><span class="hint">この辞書について</span></a>
       <a class="row" href="#/analysis" data-r="analysis"><span class="lb">分類・考察</span><span class="hint">解釈の傾向を見る</span></a>
       <a class="row" href="#/end" data-r="end"><span class="lb">おわりに</span><span class="hint">最後の問い</span></a>
-      <a class="row" href="#/about" data-r="about"><span class="lb">掲載について</span><span class="hint">掲載・お問い合わせ</span></a>
+      <a class="row" href="#/about" data-r="about"><span class="lb">掲載について</span><span class="hint">情報の取り扱いについて・お問い合わせ</span></a>
     </div>
   </div>
 </aside>
 <main id="app"></main>
-<footer>女子美術大学 共創デザイン学科 卒業研究「言葉の解釈の違いから、他者を知る」　<a href="#/about" style="color:inherit">掲載について</a></footer>
+<footer>女子美術大学 共創デザイン学科 卒業研究「言葉の解釈の違いから、他者を知る」　松崎梨世　<a href="#/about" style="color:inherit">掲載について</a></footer>
 
 <!-- 本番データ（任意）。同じフォルダに data.js があれば読み込まれ、なければ無視されます -->
 <script src="data.js" onerror="this.remove()"></script>
@@ -1273,9 +1277,9 @@ function viewWord(id, mode) {
     let i = 0;
     const draw = () => {
       body.innerHTML = `<div class="reader">${cardHTML(entries[i], i + 1)}
-        <div class="reader-nav"><button id="prev" ${i === 0 ? 'disabled' : ''}>‹</button>
+        <div class="reader-nav"><button id="prev" ${i === 0 ? 'disabled' : ''} aria-label="前の解釈">‹</button>
         <span>${i + 1} / ${entries.length}　（解釈を押すと、考えた人がひらきます）</span>
-        <button id="next" ${i === entries.length - 1 ? 'disabled' : ''}>›</button></div></div>`;
+        <button id="next" ${i === entries.length - 1 ? 'disabled' : ''} aria-label="次の解釈">›</button></div></div>`;
       bindCards(body);
       body.querySelector('#prev').onclick = () => { if (i > 0) { i--; draw(); } };
       body.querySelector('#next').onclick = () => { if (i < entries.length - 1) { i++; draw(); } };
@@ -1435,7 +1439,7 @@ function viewAbout() {
   app.innerHTML = `
   <article class="prose fade">
     <h2>掲載について</h2>
-    <p class="lead">「ばらばら辞書」は、女子美術大学 共創デザイン学科の卒業研究「言葉の解釈の違いから、他者を知る」の制作物です。ひとつの言葉に対するさまざまな解釈を、ひとつの答えにまとめずに並べています。</p>
+    <p class="lead">「ばらばら辞書」は、女子美術大学 共創デザイン学科 松崎梨世の卒業研究「言葉の解釈の違いから、他者を知る」の制作物です。ひとつの言葉に対するさまざまな解釈を、ひとつの答えにまとめずに並べています。</p>
 
     <h3>掲載している解釈について</h3>
     <ul>
@@ -1444,6 +1448,7 @@ function viewAbout() {
       <li>『「言葉」についてのアンケート』には、言葉そのものについての設問への回答を原文のまま掲載しています。「ある」「なし」などの短い回答と、制作者個人へのメッセージは省略しています。</li>
       <li>逆引き用のキーワードは、文章中の表現から自動で付けています。回答者が付けたものではありません。</li>
       <li>イメージの文章に色の名前（「灰色」「薄いピンク」など）が書かれている場合は、その色を小さな丸で添えています。丸の色は言葉から自動で選んだもので、回答者が選んだ色ではありません。投稿で色を選んだ場合は、その色を表示します。</li>
+      <li>解釈に添えたイラストは、解釈をもとに制作者が描いたものです。回答者が描いたものではありません。</li>
       <li>解釈の下の「考えた人」には、回答者が入力したペンネーム・年代・立場などを表示しています。本名や連絡先はお聞きしていません。</li>
       <li>「人から読む」では、アンケートの同じ回答者による5つの言葉の解釈を、まとめて並べています。</li>
     </ul>
@@ -2211,8 +2216,6 @@ loadRemote().then(ok => {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   document.documentElement.classList.add('live-on');
   const R = (a, b) => (a + Math.random() * (b - a)).toFixed(3);
-  // 画面に入ったものを順番待ちに入れて、ひとつずつ間をあけて出す
-  const queue = []; let pumping = false;
   // 解釈の文章は、人が書いていくように1文字ずつ現れる
   const WRITE = '.sense .def, .person-entry blockquote';
   const finishWrite = (el, host) => {
@@ -2246,23 +2249,18 @@ loadRemote().then(ok => {
     const n = el.querySelectorAll('.ch').length;
     setTimeout(() => el.classList.add('settled'), 2800 + Math.min(n, 60) * 40);
   };
-  const pump = () => {
-    if (!queue.length) { pumping = false; return; }
-    pumping = true;
-    const el = queue.shift();
-    if (!el.isConnected) return pump();
-    // もう画面の上に過ぎたものは、書かずにすぐ出して次へ。たくさん待っているときは間を少し詰める
-    const past = el.getBoundingClientRect().bottom < 0;
-    reveal(el, past);
-    if (past) return pump();
-    const gap = el.closest('.sense, .person-entry') ? (queue.length > 3 ? 700 : 1500) : 250;
-    setTimeout(pump, gap);
-  };
+  // 順番待ちはしない。画面に入ったものは、その場ですぐ書き始める（同時に入ったものは、少しずつずらす）
   const io = new IntersectionObserver(es => {
     es.filter(en => en.isIntersecting)
       .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
-      .forEach(en => { io.unobserve(en.target); queue.push(en.target); });
-    if (!pumping) pump();
+      .forEach((en, k) => {
+        const el = en.target; io.unobserve(el);
+        setTimeout(() => {
+          if (!el.isConnected) return;
+          // もう画面の上に過ぎたものは、書かずにすぐ出す
+          reveal(el, el.getBoundingClientRect().bottom < 0);
+        }, k * 150);
+      });
   }, { rootMargin: '0px 0px -8% 0px' });
   const liven = el => {
     if (el.dataset.alive) return; el.dataset.alive = '1';
