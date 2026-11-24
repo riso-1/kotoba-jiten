@@ -400,6 +400,15 @@
   .wordpage { max-width: 860px; margin: 0 auto; }
   .sense { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 0 10px; padding: 20px 0; border-bottom: 1px dotted var(--line); cursor: pointer; outline: none; }
   .sense:focus-visible { background: rgba(178,58,42,.05); }
+  /* 解釈に添えるイラスト：右側の空いたところに置く（背景が透明なPNG） */
+  .sense.has-ill { grid-template-columns: 22px minmax(0, 1fr) 170px; }
+  .sense .ill { grid-column: 3; grid-row: 1; align-self: center; width: 170px; height: auto; transform: rotate(calc(var(--rot, 0deg) * -.5)); transition: opacity 1.6s ease .3s; pointer-events: none; }
+  .sense .ill.flat { transform: none; }
+  .sense.writing .ill { opacity: 0; }
+  @media (max-width: 640px) {
+    .sense.has-ill { grid-template-columns: 22px minmax(0, 1fr) 92px; }
+    .sense .ill { width: 92px; align-self: start; margin-top: 6px; }
+  }
   .sno { display: inline-flex; align-items: center; justify-content: center; width: 1.8em; height: 1.8em; border-radius: 50%; background: var(--red); color: var(--paper); font-family: var(--sans); font-size: 12px; margin-top: 5px; }
   .sword { display: inline-block; font-weight: 800; font-size: 14px; text-decoration: none; margin-bottom: 2px; }
   .sense .def { font-size: 20px; font-weight: 600; line-height: 1.7; margin: 0 0 6px; white-space: pre-line; overflow-wrap: anywhere; }
@@ -940,6 +949,10 @@ function mapColumns(header) {
   return m;
 }
 // 1人分の回答（1行）を、5つの言葉それぞれの解釈カードに分ける
+// 投稿された回答のうち、表記をほかの回答にそろえるもの（ペンネーム → 置きかえる項目）
+const PROFILE_FIX = {
+  'Okamy': { age: '40代', gender: '男性', role: '会社員' },
+};
 function rowsToEntries(rows) {
   const [header = [], ...body] = rows;
   const m = mapColumns(header);
@@ -949,6 +962,7 @@ function rowsToEntries(rows) {
     if (m.approve >= 0 && !/^(TRUE|はい|OK|1|✓)$/i.test(g(m.approve))) { skipped++; return; }
     if (m.consent >= 0 && /不可|いいえ|しない|NG/i.test(g(m.consent))) { skipped++; return; }
     const profile = {}; for (const k in m.profile) profile[k] = g(m.profile[k]);
+    Object.assign(profile, PROFILE_FIX[profile.name] || {});
     const push = (w, c) => {
       const text = g(c.text);
       if (!w || !text) return;
@@ -1032,14 +1046,33 @@ function scatter(e) {
   return `--dl:${left.toFixed(1)};--dr:${(room - left).toFixed(1)};--rot:${rot}deg;--gap:${gap}px`;
 }
 
+// 解釈に添えるイラスト（「言葉|ペンネーム」→ illust フォルダの画像）
+const ILLUST = {
+  'futsu|ひねくれざむらい': 'illust/futsu_hinekure.png',
+  'futsu|みるきー': 'illust/futsu_milky.png',
+  'futsu|シルクコ': 'illust/futsu_silkuko.png',
+  'futsu|ぱた': 'illust/futsu_pata.png',
+  'futsu|えへへ': 'illust/futsu_ehehe.png',
+  'futsu|も': 'illust/futsu_mo.png',
+  'futsu|灯台': 'illust/futsu_toudai.png',
+  'futsu|ミックスナッツ': 'illust/futsu_mixnuts.png',
+  'futsu|ぴかり': 'illust/futsu_pikari.png',
+  'futsu|かめ子': 'illust/futsu_kameko.png',
+};
+// 傾けずに、水平のまま表示する絵（水平線など）
+const ILLUST_FLAT = new Set(['futsu|も', 'futsu|灯台', 'futsu|ぴかり']);
+const illustKey = e => [e.word, String((e.profile || {}).name || '').trim()].join('|');
+const illustOf = e => ILLUST[illustKey(e)];
+
 function cardHTML(e, no, showWord) {
   const w = wordById(e.word); const p = e.profile || {};
+  const ill = illustOf(e);
   const age = v => shown(v) && (v + (/^\d+$/.test(v) ? '歳' : ''));
   const row = (k, v) => v ? `<dt>${k}</dt><dd>${esc(v)}</dd>` : '';
   const who = [age(p.age), shown(p.role)].filter(Boolean).join('・');
   const ps = personOf(e);
   return `
-  <article class="card sense" tabindex="0" style="--c:${esc(e.color || w.color)};${scatter(e)}" aria-label="押すと、この解釈を考えた人がひらきます">
+  <article class="card sense${ill ? ' has-ill' : ''}" tabindex="0" style="--c:${esc(e.color || w.color)};${scatter(e)}" aria-label="押すと、この解釈を考えた人がひらきます">
     <span class="sno">${no}</span>
     <div class="sbody">
       ${showWord ? `<a class="sword" href="#/word/${w.id}">${w.yomi}<b>【</b>${w.label}<b>】</b></a>` : ''}
@@ -1052,6 +1085,7 @@ function cardHTML(e, no, showWord) {
         ${ps ? `<a class="to-person" href="#/people/${ps.no}">この人の5つの解釈を読む →</a>` : ''}
       </div>
     </div>
+    ${ill ? `<img class="ill${ILLUST_FLAT.has(illustKey(e)) ? ' flat' : ''}" src="${ill}" alt="" loading="lazy" width="400" height="400">` : ''}
   </article>`;
 }
 function bindCards(root = app) {

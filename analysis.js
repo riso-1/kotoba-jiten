@@ -136,8 +136,8 @@ window.KOTOBA_ANALYSIS = {
     "ibasho|安心できる場所|60代|男性|アルバイト・パート": "self",
     "ibasho|自分のことを好いている(好いている理由は何であれ)場にいる状態|20代|女性|会社員": "both",
     "ibasho|家|20代|女性|会社員": "self",
-    "jiyu|解放感があって束縛や心配がない状態|49|男|サラリーマン": "other",
-    "futsu|個性がなく周りの人間と同じような状態|49|Male|サラリーマン": "other"
+    "jiyu|解放感があって束縛や心配がない状態|40代|男性|会社員": "other",
+    "futsu|個性がなく周りの人間と同じような状態|40代|男性|会社員": "other"
   },
   "dims": {
     "concrete": {
@@ -275,8 +275,8 @@ window.KOTOBA_ANALYSIS = {
       "yasashisa|人として持つべき気持ち、行動|20代|女性|会社員": "abstract",
       "shiawase|普遍的な毎日の中に喜びが訪れること|20代|女性|会社員": "abstract",
       "ibasho|家|20代|女性|会社員": "concrete",
-      "jiyu|解放感があって束縛や心配がない状態|49|男|サラリーマン": "abstract",
-      "futsu|個性がなく周りの人間と同じような状態|49|Male|サラリーマン": "abstract"
+      "jiyu|解放感があって束縛や心配がない状態|40代|男性|会社員": "abstract",
+      "futsu|個性がなく周りの人間と同じような状態|40代|男性|会社員": "abstract"
     },
     "tone": {
       "futsu|世の中において多数とされるもの|20代|女性|会社員": "neutral",
@@ -413,8 +413,8 @@ window.KOTOBA_ANALYSIS = {
       "yasashisa|人として持つべき気持ち、行動|20代|女性|会社員": "positive",
       "shiawase|普遍的な毎日の中に喜びが訪れること|20代|女性|会社員": "positive",
       "ibasho|家|20代|女性|会社員": "neutral",
-      "jiyu|解放感があって束縛や心配がない状態|49|男|サラリーマン": "positive",
-      "futsu|個性がなく周りの人間と同じような状態|49|Male|サラリーマン": "neutral"
+      "jiyu|解放感があって束縛や心配がない状態|40代|男性|会社員": "positive",
+      "futsu|個性がなく周りの人間と同じような状態|40代|男性|会社員": "neutral"
     }
   },
   "memo": {},
