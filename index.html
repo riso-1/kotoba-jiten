@@ -281,9 +281,6 @@
   .person-tile .self { font-family: var(--serif); font-size: 20px; line-height: 1.4; }
   .person-head .self small { display: block; font-family: var(--sans); font-size: 11px; color: var(--sub); }
   .person-tile .who { font-size: 12px; color: var(--sub); }
-  .person-tile .dots { display: flex; gap: 4px; margin-top: auto; padding-top: 8px; }
-  .person-tile .dots span { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
-  .person-tile .dots span.off { background: #e5ebed; }
   .person-head { background: var(--paper); border-radius: 6px; box-shadow: 0 2px 14px rgba(40,60,70,.06); padding: 26px 30px; margin: 0 0 26px; display: grid; grid-template-columns: 1fr auto; gap: 18px 30px; align-items: center; }
   .person-head h2 { font-family: var(--serif); font-weight: 500; font-size: 26px; letter-spacing: .12em; margin: 0 0 8px; }
   .person-head dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin: 0; font-size: 14px; }
@@ -400,22 +397,26 @@
   .wordpage { max-width: 860px; margin: 0 auto; }
   .sense { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 0 10px; padding: 20px 0; border-bottom: 1px dotted var(--line); cursor: pointer; outline: none; }
   .sense:focus-visible { background: rgba(178,58,42,.05); }
+  /* 言葉のページを開いたときに降る、色の水玉（ヘッダーの下を通る） */
+  #rain { position: fixed; inset: 0; pointer-events: none; z-index: 6; overflow: hidden; }
+  /* 色の水玉。ふちだけをぼかす（遠くの水玉ほど、少し強く） */
+  #rain i { position: absolute; top: 0; left: 0; border-radius: 50%; will-change: transform, opacity; background: var(--c); filter: blur(var(--b, 2px)); }
+  @media (prefers-reduced-motion: reduce) { #rain { display: none; } }
   /* 解釈に添えるイラスト：右側の空いたところに置く（背景が透明なPNG） */
   .sense.has-ill { grid-template-columns: 22px minmax(0, 1fr) 170px; }
-  .sense .ill { grid-column: 3; grid-row: 1; align-self: center; width: 170px; height: auto; transform: rotate(calc(var(--rot, 0deg) * -.5)); transition: opacity 1.6s ease .3s; pointer-events: none; }
-  .sense .ill.flat { transform: none; }
+  .sense .ill { grid-column: 3; grid-row: 1; align-self: center; width: 170px; height: auto; transition: opacity 1.6s ease .3s; pointer-events: none; }
   .sense.writing .ill { opacity: 0; }
   @media (max-width: 640px) {
     .sense.has-ill { grid-template-columns: 22px minmax(0, 1fr) 92px; }
     .sense .ill { width: 92px; align-self: start; margin-top: 6px; }
   }
-  .sno { display: inline-flex; align-items: center; justify-content: center; width: 1.8em; height: 1.8em; border-radius: 50%; background: var(--red); color: var(--paper); font-family: var(--sans); font-size: 12px; margin-top: 5px; }
+  .sno { display: inline-flex; align-items: center; justify-content: center; width: 1.8em; height: 1.8em; border-radius: 50%; background: var(--ink); color: var(--paper); font-family: var(--sans); font-size: 12px; margin-top: 5px; }
   .sword { display: inline-block; font-weight: 800; font-size: 14px; text-decoration: none; margin-bottom: 2px; }
   .sense .def { font-size: 20px; font-weight: 600; line-height: 1.7; margin: 0 0 6px; white-space: pre-line; overflow-wrap: anywhere; }
   .sense .why { font-size: 14.5px; line-height: 1.95; margin: 0 0 6px; color: #3c3730; white-space: pre-line; overflow-wrap: anywhere; }
   .sense .lb { font-family: var(--sans); font-size: 10px; color: var(--sub); border: 1px solid var(--line); padding: 1px 6px; margin-right: 8px; vertical-align: 2px; letter-spacing: .1em; }
   .sense .img { font-size: 13px; line-height: 1.9; color: var(--sub); margin: 0 0 6px; white-space: pre-line; overflow-wrap: anywhere; }
-  .sense .img .swatch, .person-entry .image .swatch { display: inline-block; width: 11px; height: 11px; margin-right: 4px; vertical-align: -1px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.18); }
+  .sense .img .swatch, .person-entry .image .swatch { display: inline-block; width: 16px; height: 16px; margin-right: 5px; vertical-align: -3px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.18); }
   .sense .img .swatch:last-of-type, .person-entry .image .swatch:last-of-type { margin-right: 8px; }
   .sense .who { font-family: var(--sans); font-size: 12px; color: var(--sub); display: flex; gap: 4px 12px; flex-wrap: wrap; align-items: baseline; }
   .sense .who .nm { color: var(--ink); }
@@ -473,7 +474,7 @@
   .prose ul ul > li::before { width: .3em; height: .3em; border-radius: 50%; top: .85em; left: .3em; background: var(--sub); }
   .prose ol { list-style: none; counter-reset: q; padding-left: 0; }
   .prose ol > li { counter-increment: q; position: relative; padding-left: 2.6em; font-family: var(--serif); font-size: 16.5px; line-height: 1.9; margin-bottom: 1.2em; }
-  .prose ol > li::before { content: counter(q); position: absolute; left: 0; top: .45em; width: 1.75em; height: 1.75em; border-radius: 50%; background: var(--red); color: var(--paper); font-family: var(--sans); font-size: 12px; display: flex; align-items: center; justify-content: center; }
+  .prose ol > li::before { content: counter(q); position: absolute; left: 0; top: .45em; width: 1.75em; height: 1.75em; border-radius: 50%; background: var(--ink); color: var(--paper); font-family: var(--sans); font-size: 12px; display: flex; align-items: center; justify-content: center; line-height: 1; padding-bottom: .16em; box-sizing: border-box; }
   .prose strong { font-weight: 700; background: linear-gradient(transparent 62%, var(--accent-soft) 62%); }
   @media (max-width: 640px) {
     .prose .lead { font-size: 16.5px; }
@@ -533,17 +534,17 @@
   @media (max-width: 760px) {
     .titlebox .s.t { left: -4px; right: 18px; } .titlebox .s.b { left: 14px; right: -4px; }
   }
-  /* 本棚：本が少しずつ傾いて並ぶ */
+  /* 本棚：本はまっすぐ並べる（--tilt を足せば、本ごとに傾けられる） */
   .book { transform-origin: 50% 100%; transform: rotate(var(--tilt, 0deg)); }
-  .book.b1 { --tilt: -1deg; } .book.b2 { --tilt: .6deg; } .book.b3 { --tilt: -.4deg; } .book.b4 { --tilt: 1.6deg; } .book.b5 { --tilt: -.8deg; }
   .book:hover, .book:focus-visible { transform: translateY(-14px) rotate(var(--tilt, 0deg)); }
-  /* 傾いた「幸せ」と「居場所」が重ならないよう、間をあける */
-  .book.b4 { margin-right: 10px; } .book.b2 { margin-right: 4px; }
-  @media (max-width: 760px) { .book.b4 { margin-right: 8px; } .book.b2 { margin-right: 3px; } }
   .books.picking .book:not(.pick) { transform: rotate(var(--tilt, 0deg)); }
   /* 辞書ページ：解釈ひとつ（本文・理由・イメージ・考えた人）をひとまとまりにして、ばらばらに置く */
   .sense { --k: 1; margin: calc(var(--gap, 0px) * var(--k)) calc(var(--dr, 0) * var(--k) * 1%) 0 calc(var(--dl, 0) * var(--k) * 1%); }
-  .sense .sno { transform: rotate(var(--rot, 0deg)); }
+  /* 番号の丸の中心を、解釈の1行目（文字の大きさ × 行の高さ1.7）の中心にそろえる */
+  .sense { --dfs: 20px; } .reader .sense { --dfs: 24px; }
+  @media (max-width: 640px) { .sense { --dfs: 18px; } .reader .sense { --dfs: 20px; } }
+  .sense .def { font-size: var(--dfs); }
+  .sense .sno { margin-top: calc((var(--dfs) * 1.7 - 1.8em) / 2); }
   .sno { line-height: 1; padding-bottom: .16em; box-sizing: border-box; }
   .reader .sense { margin: 0; }
   @media (max-width: 760px) { .sense { --k: .5; } }
@@ -561,7 +562,8 @@
     to   { transform: translate(var(--dx), calc(var(--sy) * -1)) rotate(calc(var(--sr) * -1)); }
   }
   /* まとまり全体もかすかに呼吸する */
-  .sense.alive .sbody, .person-entry.alive, .voice.alive { animation: s-breathe var(--bt, 14s) ease-in-out infinite alternate; }
+  /* 辞書ページの解釈は揺らさない（番号の丸と1行目の高さがずれないように） */
+  .person-entry.alive, .voice.alive { animation: s-breathe var(--bt, 14s) ease-in-out infinite alternate; }
   @keyframes s-breathe { from { transform: translateY(0); } to { transform: translateY(-2px) rotate(var(--br, .15deg)); } }
   @media (prefers-reduced-motion: reduce) {
     .live .ch { opacity: 1; transition: none; transform: translate(0, var(--sy)) rotate(var(--sr)); }
@@ -641,7 +643,7 @@
     </div>
     <div class="sec"><h3>この辞書について</h3>
       <a class="row" href="#/intro" data-r="intro"><span class="lb">はじめに</span><span class="hint">この辞書について</span></a>
-      <a class="row" href="#/analysis" data-r="analysis"><span class="lb">分析</span><span class="hint">解釈の傾向を見る</span></a>
+      <a class="row" href="#/analysis" data-r="analysis"><span class="lb">分類・考察</span><span class="hint">解釈の傾向を見る</span></a>
       <a class="row" href="#/end" data-r="end"><span class="lb">おわりに</span><span class="hint">最後の問い</span></a>
       <a class="row" href="#/about" data-r="about"><span class="lb">掲載について</span><span class="hint">掲載・お問い合わせ</span></a>
     </div>
@@ -1034,6 +1036,52 @@ const imageSwatches = e => { const c = chosenColor(e);
   if (c) return `<span class="swatch" style="--c:${c}" title="投稿者が選んだイメージの色"></span>`;
   return imageColors(e.image).map(o => `<span class="swatch" style="--c:${o.hex}" title="「${esc(o.name)}」から"></span>`).join(''); };
 
+// 言葉のページを開くと、その言葉で答えられた色の水玉がふんわり降ってきて、下に着く前に消える（一度きり）
+// 多くの人が答えた色ほど、水玉の数も多くなる。同じ言葉のページを開き直しても、しばらくは降らせない
+let rainTimers = [], rainLast = { id: '', t: 0 };
+function stopColorRain() {
+  rainTimers.forEach(clearTimeout); rainTimers = [];
+  const sky = document.getElementById('rain'); if (sky) sky.remove();
+}
+function colorRain(wordId, entries) {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const now = Date.now();
+  if (rainLast.id === wordId && now - rainLast.t < 20000) return;
+  const palette = entries.flatMap(e => { const c = chosenColor(e); return c ? [c] : imageColors(e.image).map(o => o.hex); })
+    .map(h => h === '#ffffff' ? '#e9e5dc' : h); // 白は紙の上で消えるので、ほんの少し色をのせる
+  stopColorRain();
+  if (!palette.length) return;
+  rainLast = { id: wordId, t: now };
+  const sky = document.createElement('div'); sky.id = 'rain'; sky.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(sky);
+  const R = (a, b) => a + Math.random() * (b - a);
+  const W = innerWidth, H = innerHeight, small = W < 640;
+  const count = small ? 26 : 42;
+  let alive = 0;
+  const one = () => {
+    const depth = Math.random();
+    const size = Math.round(R(18, 54) * (1 - depth * .4) * (small ? .75 : 1));
+    const color = palette[Math.floor(Math.random() * palette.length)];
+    const d = document.createElement('i');
+    d.style.width = d.style.height = size + 'px';
+    d.style.setProperty('--c', color);
+    d.style.setProperty('--b', (size * .14 + depth * 2.5).toFixed(1) + 'px');
+    sky.appendChild(d); alive++;
+    const x0 = R(-.05, 1) * W, sway = R(18, 60) * (Math.random() < .5 ? -1 : 1);
+    const op = R(.45, .8) * (1 - depth * .4);
+    const frames = [];
+    for (let k = 0; k <= 6; k++) {
+      const t = k / 6;
+      frames.push({ transform: `translate(${x0 + Math.sin(t * Math.PI * 2 + depth * 6) * sway}px, ${-60 + t * (H + 120)}px)`,
+        // 降りはじめがいちばん濃く、下へ行くほど少しずつ薄くなって消える
+        opacity: k === 0 || k === 6 ? 0 : op * Math.pow(1 - t, 1.2) * 1.15 });
+    }
+    const a = d.animate(frames, { duration: R(7000, 13000) * (1 + depth * .5), easing: 'linear', fill: 'forwards' });
+    a.onfinish = () => { d.remove(); if (--alive === 0 && !rainTimers.length) sky.remove(); };
+  };
+  for (let i = 0; i < count; i++) rainTimers.push(setTimeout(() => { rainTimers.shift(); one(); }, i * R(60, 140)));
+}
+
 // 解釈ごとに、ばらけ具合を決める（同じ解釈はいつも同じ位置）
 function scatter(e) {
   let h = 2166136261;
@@ -1058,9 +1106,42 @@ const ILLUST = {
   'futsu|ミックスナッツ': 'illust/futsu_mixnuts.png',
   'futsu|ぴかり': 'illust/futsu_pikari.png',
   'futsu|かめ子': 'illust/futsu_kameko.png',
+  'yasashisa|にっこりまん': 'illust/yasashisa_729f7c.png',
+  'yasashisa|きらり': 'illust/yasashisa_742d6d.png',
+  'yasashisa|たかぼう': 'illust/yasashisa_1fd3f9.png',
+  'yasashisa|ぴかり': 'illust/yasashisa_309cee.png',
+  'yasashisa|ふう': 'illust/yasashisa_426547.png',
+  'yasashisa|みどり色のネコ': 'illust/yasashisa_2e5aa1.png',
+  'yasashisa|みるきー': 'illust/yasashisa_dd2773.png',
+  'yasashisa|も': 'illust/yasashisa_ac50f8.png',
+  'shiawase|るんるん': 'illust/shiawase_867de2.png',
+  'yasashisa|シルクコ': 'illust/yasashisa_3f788a.png',
+  'ibasho|えへへ': 'illust/ibasho_93cc37.png',
+  'ibasho|さかなのめ': 'illust/ibasho_ffd2c1.png',
+  'ibasho|さはは': 'illust/ibasho_af2354.png',
+  'ibasho|な': 'illust/ibasho_2b8cb2.png',
+  'ibasho|にっこりまん': 'illust/ibasho_729f7c.png',
+  'ibasho|ぱた': 'illust/ibasho_725d0b.png',
+  'ibasho|ひねくれざむらい': 'illust/ibasho_95e864.png',
+  'ibasho|灯台': 'illust/ibasho_ff85ac.png',
+  'shiawase|きらり': 'illust/shiawase_742d6d.png',
+  'shiawase|さはは': 'illust/shiawase_af2354.png',
+  'shiawase|にっこりまん': 'illust/shiawase_729f7c.png',
+  'shiawase|ひねくれざむらい': 'illust/shiawase_95e864.png',
+  'shiawase|シルクコ': 'illust/shiawase_3f788a.png',
+  'shiawase|灯台': 'illust/shiawase_ff85ac.png',
+  'shiawase|🌙': 'illust/shiawase_43f111.png',
+  'jiyu|March': 'illust/jiyu_fa3e5e.png',
+  'jiyu|ggg': 'illust/jiyu_ba248c.png',
+  'jiyu|えへへ': 'illust/jiyu_93cc37.png',
+  'jiyu|ふう': 'illust/jiyu_426547.png',
+  'jiyu|みるきー': 'illust/jiyu_dd2773.png',
+  'jiyu|も': 'illust/jiyu_ac50f8.png',
+  'jiyu|シルクコ': 'illust/jiyu_3f788a.png',
+  'jiyu|灯台': 'illust/jiyu_ff85ac.png',
+  'jiyu|煮っころがし': 'illust/jiyu_6b53d0.png',
+  'jiyu|🌙': 'illust/jiyu_43f111.png',
 };
-// 傾けずに、水平のまま表示する絵（水平線など）
-const ILLUST_FLAT = new Set(['futsu|も', 'futsu|灯台', 'futsu|ぴかり']);
 const illustKey = e => [e.word, String((e.profile || {}).name || '').trim()].join('|');
 const illustOf = e => ILLUST[illustKey(e)];
 
@@ -1085,7 +1166,7 @@ function cardHTML(e, no, showWord) {
         ${ps ? `<a class="to-person" href="#/people/${ps.no}">この人の5つの解釈を読む →</a>` : ''}
       </div>
     </div>
-    ${ill ? `<img class="ill${ILLUST_FLAT.has(illustKey(e)) ? ' flat' : ''}" src="${ill}" alt="" loading="lazy" width="400" height="400">` : ''}
+    ${ill ? `<img class="ill" src="${ill}" alt="" loading="lazy" width="400" height="400">` : ''}
   </article>`;
 }
 function bindCards(root = app) {
@@ -1105,7 +1186,7 @@ function viewCover() {
   <section class="cover fade">
     <div class="titlebox"><span class="s t" aria-hidden="true"></span><span class="s b" aria-hidden="true"></span><span class="s l" aria-hidden="true"></span><span class="s r" aria-hidden="true"></span>
       <h1><span class="bara" aria-label="ばらばら辞書"><i aria-hidden="true" style="--y:-.05em;--r:-4deg">ば</i><i aria-hidden="true" style="--y:.07em;--r:3deg">ら</i><i aria-hidden="true" style="--y:-.02em;--r:5deg">ば</i><i aria-hidden="true" style="--y:.09em;--r:-3deg">ら</i><i aria-hidden="true" style="--y:-.06em;--r:-2deg">辞</i><i aria-hidden="true" style="--y:.03em;--r:4deg">書</i></span></h1>
-      <p class="lead"><span class="nb">人の数だけある、</span><span class="nb">言葉の解釈を集めた辞書です</span></p>
+      <p class="lead"><span class="nb">ひとつのことばに、</span><span class="nb">ひとの数だけの意味</span></p>
     </div>
     <p class="shelf-hint">気になる一冊を、手にとってください</p>
     <div class="shelf">
@@ -1145,10 +1226,10 @@ function viewIntro() {
   app.innerHTML = `
   <article class="prose fade">
     <h2>はじめに</h2>
-    <p class="lead">私たちは同じ言葉を使いながらも、それぞれ異なる経験や価値観を通して、その言葉を解釈しています。</p>
+    <p>私たちは同じ言葉を使いながらも、それぞれ異なる経験や価値観を通して、その言葉を解釈しています。</p>
     <p>一般的な辞書は、言葉の意味を整理し、誰もが共有できる定義を示します。しかし、この辞書は、さまざまな解釈をひとつの定義にまとめることを目的としていません。</p>
     <p>ここには、互いに異なる解釈や、ときに矛盾するような解釈が、そのまま並んでいます。</p>
-    <p class="key"><span class="nb">正解を探すための</span><span class="nb">辞書ではありません。</span></p>
+    <p>正解を探すための辞書ではありません。</p>
     <p>解釈の下にある「考えた人」をひらくと、その解釈を考えた人のことが少しだけわかります。「人から読む」では、ひとりの人が5つの言葉をどう解釈したかを、続けて読むことができます。</p>
     <p>自分とは違う誰かの世界に触れながら、違いを違いのまま受け止めることについて、考えてみてください。</p>
     <p style="margin-top:2em"><a class="btn fill" href="#/word/${WORDS[0].id}">辞書をひらく</a></p>
@@ -1180,6 +1261,7 @@ function viewWord(id, mode) {
     <p style="text-align:center;margin-top:44px"><a class="btn" href="#/compare?word=${w.id}">「${w.label}」をあなたの解釈とくらべる</a>　<a class="btn" href="#/add?word=${w.id}">「${w.label}」にあなたの解釈をくわえる</a></p>
   </section>`;
   const body = document.getElementById('body');
+  colorRain(w.id, entries);
 
   if (!entries.length) {
     body.innerHTML = `<p class="empty">「${w.label}」の解釈は、まだありません。</p>`;
@@ -1427,9 +1509,7 @@ function viewPeople() {
     ${list.length ? `<div class="people-grid">${list.map(x => { const p = x.profile;
       return `<a class="person-tile" href="#/people/${x.no}">
         <span class="self">${esc(shown(p.self) || '―')}</span>
-        <span class="who">${esc(personName(p))}${personWho(p) ? '　' + esc(personWho(p)) : ''}</span>
-        <span class="dots">${WORDS.map(w => `<span class="${x.entries.some(e => e.word === w.id) ? '' : 'off'}" style="--c:${w.color}" title="${w.label}"></span>`).join('')}</span>
-      </a>`; }).join('')}</div>` : '<p class="empty">まだ回答はありません。</p>'}
+        <span class="who">${esc(personName(p))}${personWho(p) ? '　' + esc(personWho(p)) : ''}</span>      </a>`; }).join('')}</div>` : '<p class="empty">まだ回答はありません。</p>'}
   </section>`;
 }
 
@@ -1493,7 +1573,7 @@ function viewCompare(preWord) {
   <section class="fade" style="max-width:800px;margin:0 auto">
     <div class="an-head"><span class="pill">くらべる</span>
       <h2>あなたの解釈とくらべる</h2>
-      <p class="sample-note">あなたの解釈を書いて、3つの問いに答えると、投稿された解釈のなかで、あなたと近い解釈・遠い解釈が見つかります。分析ページと同じ観点を使っています。<br>
+      <p class="sample-note">あなたの解釈を書いて、3つの問いに答えると、投稿された解釈のなかで、あなたと近い解釈・遠い解釈が見つかります。分類・考察ページと同じ観点を使っています。<br>
       この画面に入力した内容は、保存も送信もされません。</p>
     </div>
     <form id="cf" class="an-block cmp-form">
@@ -1501,7 +1581,7 @@ function viewCompare(preWord) {
         <div class="word-pick">${WORDS.map(w => `<label><input type="radio" name="word" value="${w.id}" ${w.id === w0.id ? 'checked' : ''}><span>${w.label}</span></label>`).join('')}</div></div>
       <div class="row" id="cpickRow"><label for="cpick">投稿された解釈から選ぶ <small>（任意）</small></label>
         <select id="cpick"></select>
-        <p class="sample-note" style="margin:6px 0 0">解釈を投稿したことのある方は、自分の解釈を選んでくらべられます。選ぶと、分析での分類が下の問いに入ります（変えることもできます）。</p></div>
+        <p class="sample-note" style="margin:6px 0 0">解釈を投稿したことのある方は、自分の解釈を選んでくらべられます。選ぶと、分類・考察ページでの分類が下の問いに入ります（変えることもできます）。</p></div>
       <div class="row"><label for="ctext">あなたにとって、その言葉とはどのようなものですか？ <small>（任意）</small></label>
         <textarea id="ctext" placeholder="書くと、ことばの近い解釈も探します">${esc(draft.text || '')}</textarea></div>
       ${DIMS.map(d => `<div class="row"><label>${esc(COMPARE_Q[d.id].q)}</label>
@@ -1780,7 +1860,7 @@ const catOf = (e, a, d) => { const id = dimMap(a, d.id)[entryKey(e)]; return d.c
 const NONE_CAT = { id: null, label: '未分類', short: '未分類', color: '#e5ebed', none: true };
 
 function downloadAnalysisJs(a) {
-  const js = `// ばらばら辞書 分類・考察データ（${new Date().toLocaleString('ja-JP')} 書き出し）\n// このファイルを index.html と同じフォルダに置くと、分析ページに表示されます。\nwindow.KOTOBA_ANALYSIS = ${JSON.stringify(a, null, 2)};\n`;
+  const js = `// ばらばら辞書 分類・考察データ（${new Date().toLocaleString('ja-JP')} 書き出し）\n// このファイルを index.html と同じフォルダに置くと、分類・考察ページに表示されます。\nwindow.KOTOBA_ANALYSIS = ${JSON.stringify(a, null, 2)};\n`;
   const el = document.createElement('a');
   el.href = URL.createObjectURL(new Blob([js], { type: 'text/javascript' }));
   el.download = 'analysis.js'; el.click();
@@ -1875,7 +1955,7 @@ function viewAnalysis(params) {
 
   app.innerHTML = `
   <section class="fade">
-    <div class="an-head"><span class="pill">分析</span>
+    <div class="an-head"><span class="pill">分類・考察</span>
       <h2>解釈の「軸」をくらべる</h2>
       <p class="sample-note">アンケートで集まった解釈を、${DIMS.length}つの観点で分類しました。同じ言葉でも、どこに軸を置くかは人によって異なります。「掛け合わせ」では、2つの観点を組み合わせて見ることができます。</p>
     </div>
@@ -1990,20 +2070,20 @@ function viewClassify(wid) {
     </div>
     <div class="an-block">
       <h3 style="margin:0 0 4px">「${w.label}」の投稿 <small id="progP" style="font-family:var(--sans);font-size:12px;color:var(--sub)">${posts.length ? `${count(posts)} / ${posts.length} 件 分類済み` : ''}</small></h3>
-      <p class="sample-note" style="margin:0 0 6px">投稿フォームから届き、掲載した解釈です。3つの観点すべてを分類すると「くらべる」の比べる相手に入ります。分析ページの集計には入りません。</p>
+      <p class="sample-note" style="margin:0 0 6px">投稿フォームから届き、掲載した解釈です。3つの観点すべてを分類すると「くらべる」の比べる相手に入ります。分類・考察ページの集計には入りません。</p>
       ${posts.length ? posts.map((e, i) => row(e, i, '投稿 ')).join('') : '<p class="empty" style="padding:16px 0">この言葉の投稿はまだありません。</p>'}
     </div>
     <div class="an-block">
-      <h3>「${w.label}」の考察 <small style="font-family:var(--sans);font-size:12px;color:var(--sub)">（分析ページで、どの観点を見ているときも「${w.label}」の欄に表示されます）</small></h3>
+      <h3>「${w.label}」の考察 <small style="font-family:var(--sans);font-size:12px;color:var(--sub)">（分類・考察ページで、どの観点を見ているときも「${w.label}」の欄に表示されます）</small></h3>
       <textarea id="note" placeholder="分類してみて気づいた共通点・相違点・矛盾などを書いてください">${esc(a.notes[w.id] || '')}</textarea>
     </div>
     <div class="an-block">
-      <h3>分析全体のまとめ <small style="font-family:var(--sans);font-size:12px;color:var(--sub)">（分析ページのいちばん下に、どの観点を見ているときも表示されます）</small></h3>
+      <h3>全体のまとめ <small style="font-family:var(--sans);font-size:12px;color:var(--sub)">（分類・考察ページのいちばん下に、どの観点を見ているときも表示されます）</small></h3>
       <textarea id="summary" style="min-height:200px" placeholder="5つの言葉と3つの観点を通して見えてきたこと、言葉の解釈の違いから他者を知ることについて考えたことを書いてください">${esc(a.summary || '')}</textarea>
     </div>
     <p style="text-align:center">
       <button class="btn fill" id="exp" type="button">analysis.js を書き出す</button>
-      <a class="btn" href="#/analysis?w=${w.id}">分析ページで確認する</a>
+      <a class="btn" href="#/analysis?w=${w.id}">分類・考察ページで確認する</a>
       ${src === 'local' ? `<button class="btn" id="reset" type="button">作業データを消す</button>` : ''}
     </p>
     <p class="sample-note" style="text-align:center">作業データはこのブラウザだけのものです。公開するときは analysis.js を書き出して index.html と同じフォルダに置き、「作業データを消す」を押してください。</p>
@@ -2060,6 +2140,7 @@ function route() {
   const params = new URLSearchParams(query || '');
   const seg = (path || '/').split('/').filter(Boolean);
   const r = seg[0] || '';
+  if (r !== 'word') stopColorRain();
   document.querySelectorAll('#nav a, #toc a.row').forEach(a => a.classList.toggle('on', a.dataset.r === r));
   if (r === 'intro') viewIntro();
   else if (r === 'word') viewWord(seg[1], seg[2]);
