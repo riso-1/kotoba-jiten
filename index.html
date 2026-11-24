@@ -464,6 +464,23 @@
     .wordpage .word-head { scroll-margin-top: 110px; }
     .pager { gap: 5px; } .pager .pg { width: 36px; height: 36px; font-size: 16px; } .pager .pn { height: 36px; padding: 0 9px; font-size: 12px; }
   }
+  .field-note { display: none; }
+  /* ── スマホだけの調整（PCはそのまま） ── */
+  @media (max-width: 760px) {
+    /* アンケートの設問は「、」のあとで改行する */
+    .vq .cl { display: inline-block; }
+    /* ペンネームの注意書きは、入力欄の中ではなく下に小さく出す */
+    #name::placeholder { color: transparent; }
+    .field-note { display: block; font-size: 11px; color: var(--sub); margin-top: 4px; }
+    /* 「（任意）」は改行して下に出す */
+    .opt-br { display: block; }
+    /* 逆引きの検索欄の例を、枠に収まる大きさにする */
+    .search-box input::placeholder { font-size: 14px; }
+    /* 長い文章は左右をそろえる */
+    .prose p, .prose li, .sample-note, .an-head p, .sense .why, .voice q, .person-entry .why, .person-entry p, .an-block p { text-align: justify; }
+    /* 1文字ずつ現れる長い文章も、現れ終わったらふつうの文字に戻して、左右をそろえる */
+    .voice q.live.alive.settled .ch, .prose li.live.alive.settled .ch { display: inline; white-space: normal; }
+  }
   /* 横に並ぶボタンのまとまり */
   .btns { display: flex; flex-wrap: wrap; gap: 10px 12px; }
   /* スマホでは、言葉のタブを折り返さずに一列に並べる（間を詰めて、幅いっぱいに均等に置く） */
@@ -598,7 +615,7 @@
   /* スマホ（幅が狭いとき）だけ。PCでは横幅に余裕があるので、ふつうに折り返す */
   @media (max-width: 760px) {
     .ph { white-space: nowrap; }
-    h2, h3, .person-tile .self, .prose.end ol li { text-wrap: pretty; }
+    h2, h3, .person-tile .self { text-wrap: pretty; }
   }
   .live .ch { display: inline-block; white-space: pre; transform: translate(var(--x), var(--y)) rotate(var(--r)); opacity: 0;
     transition: transform 2.8s cubic-bezier(.2,.6,.2,1) var(--d), opacity 2s ease var(--d); }
@@ -1424,20 +1441,20 @@ function viewAdd(preWord) {
       <div class="row"><label>言葉をえらぶ</label>
         <div class="word-pick">${WORDS.map((w, i) => `<label><input type="radio" name="word" value="${w.id}" ${(preWord ? preWord === w.id : i === 0) ? 'checked' : ''}><span>${w.label}</span></label>`).join('')}</div></div>
       <div class="row"><label for="text">あなたにとって、その言葉とはどのようなものですか？</label><textarea id="text" required></textarea></div>
-      <div class="row"><label for="reason">そう考える理由や、思い浮かぶ経験・場面 <small>（任意）</small></label><textarea id="reason"></textarea></div>
+      <div class="row"><label for="reason">そう考える理由や、思い浮かぶ経験・場面 <small class="opt-br">（任意）</small></label><textarea id="reason"></textarea></div>
       <div class="row"><label for="image">色・形・風景・音・手触りを思い浮かべるとしたら <small>（任意）</small></label>
         <div class="color-row"><input type="color" id="color" value="${DEFAULT_IMAGE_COLOR}" aria-label="イメージの色"><input type="text" id="image" placeholder="例：夕方の橙色、湯のみの温度"></div>
         <p class="sample-note" style="margin:6px 0 0">左の四角で色を選ぶと、辞書のイメージの横に小さな丸で表示されます。選ばなければ表示しません。</p></div>
       <div class="row"><label for="tags">キーワード <small>（任意・読点やスペースで区切る）</small></label><input type="text" id="tags" placeholder="例：安心、ひとり"></div>
       <fieldset><legend>あなたのこと（解釈の下の「考えた人」に表示されます）</legend>
-        <div class="row"><label for="name">ペンネーム</label><input type="text" id="name" required placeholder="個人が特定できないものにしてください"></div>
+        <div class="row"><label for="name">ペンネーム</label><input type="text" id="name" required placeholder="個人が特定できないものにしてください"><small class="field-note">※ 個人が特定できないものにしてください</small></div>
         <div class="cols">
           ${choiceField('age', '年代')}
           ${choiceField('gender', '性別')}
         </div>
         ${choiceField('role', '立場（仕事など）')}
-        <div class="row"><label for="interest">今もっとも関心を寄せていること <small>（任意）</small></label><input type="text" id="interest"></div>
-        <div class="row"><label for="self">今の自分をもっともよく表す言葉 <small>（任意）</small></label><input type="text" id="self"></div>
+        <div class="row"><label for="interest">今もっとも関心を寄せていること <small class="opt-br">（任意）</small></label><input type="text" id="interest"></div>
+        <div class="row"><label for="self">今の自分をもっともよく表す言葉 <small class="opt-br">（任意）</small></label><input type="text" id="self"></div>
       </fieldset>
       ${canPost() ? `<div class="row"><label style="font-weight:400"><input type="checkbox" id="consent" required> <a href="#/about" target="_blank">掲載について</a>を読み、入力した内容が辞書に掲載されることに同意します</label></div>` : ''}
       <button class="btn fill" type="submit" id="submitBtn">${canPost() ? '送る' : '辞書にくわえる'}</button>
@@ -1778,7 +1795,7 @@ function viewVoices() {
       <p class="sample-note">5つの言葉の解釈のほかに、言葉そのものについてもアンケートでたずねました。回答は原文のまま掲載しています。「ある」「なし」などの短い回答と、制作者個人へのメッセージは省略しました。</p>
     </div>
     ${groups.map(g => `<div class="an-block">
-      <h3>${esc(g.question)}</h3>
+      <h3 class="vq">${String(g.question).replace(/、/g, '、\n').split('\n').map(c => `<span class="cl">${esc(c)}</span>`).join('')}</h3>
       ${g.answers.map(a => `<div class="mini voice" style="--c:var(--accent)"><q>${esc(a.text)}</q><small>${esc(who(a.profile || {}))}</small></div>`).join('')}
     </div>`).join('') || '<p class="empty">まだ掲載している回答はありません。</p>'}
   </section>`;
@@ -2293,7 +2310,7 @@ loadRemote().then(ok => {
   // まとまりごとに改行しない箱（.ph）に入れる。本文はふつうの折り返しのまま
   const PHRASE = [
     'h1', 'h2', 'h3', '.titlebox .lead', '.person-tile .self',
-    '.prose.end ol li', '.btn', '.chip', '.toolbar button', '.word-tabs a', '.sword', '.shelf-hint', '.toc .lb', '.toc .hint',
+    '.btn', '.chip', '.toolbar button', '.word-tabs a', '.sword', '.shelf-hint', '.toc .lb', '.toc .hint',
     '#nav a', '.an-head .pill', '.empty',
   ].join(', ');
   const kind = ch => /[ぁ-ゖゝゞ]/.test(ch) ? 'H' : /[ァ-ヺー・ヽヾ]/.test(ch) ? 'T' : /[一-龯々〆〇]/.test(ch) ? 'K'
