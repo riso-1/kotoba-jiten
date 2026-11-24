@@ -357,6 +357,8 @@
   .mine-badge { background: none; border: 1px solid var(--red); color: var(--red); border-radius: 0; font-family: var(--sans); vertical-align: 3px; }
   .reader-nav button { border-radius: 0; background: transparent; color: var(--ink); border-color: var(--ink); }
   footer { color: var(--sub); }
+  /* フッターは意味のまとまりごとに区切り、その途中では改行しない */
+  footer .fp { display: inline-block; margin: 0 .5em; }
 
   /* 表紙：タイトルの枠と、見出し語の索引 */
   .cover { max-width: 760px; margin: 0 auto; padding-top: 40px; }
@@ -411,8 +413,9 @@
   .sense .ill { grid-column: 3; grid-row: 1; align-self: center; width: 170px; height: auto; transition: opacity 1.6s ease .3s; pointer-events: none; }
   .sense.writing .ill { opacity: 0; }
   @media (max-width: 640px) {
-    .sense.has-ill { grid-template-columns: 22px minmax(0, 1fr) 92px; }
-    .sense .ill { width: 92px; align-self: start; margin-top: 6px; }
+    /* スマホでは、イラストを文章の下に大きめに置く（文章の幅を狭めない） */
+    .sense.has-ill { grid-template-columns: 22px minmax(0, 1fr); }
+    .sense .ill { grid-column: 2; grid-row: 2; justify-self: end; width: 180px; margin-top: 10px; }
   }
   .sno { display: inline-flex; align-items: center; justify-content: center; width: 1.8em; height: 1.8em; border-radius: 50%; background: var(--ink); color: var(--paper); font-family: var(--sans); font-size: 12px; margin-top: 5px; }
   .sword { display: inline-block; font-weight: 900; font-size: 14px; text-decoration: none; margin-bottom: 2px; }
@@ -445,6 +448,40 @@
   @media (max-width: 1180px) { .thumb { display: none; } .wordpage .word-tabs { display: flex; } }
   .word-tabs a { border-radius: 0; color: var(--ink) !important; }
   .word-tabs a.on { border-bottom-color: var(--red); }
+  .page-h { font-family: var(--serif); font-weight: 500; font-size: 30px; letter-spacing: .15em; margin: 14px 0 4px; }
+  /* 辞書ページのページ番号（一 二 三 …） */
+  .wordpage .word-head { scroll-margin-top: 90px; }
+  .pager { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 6px; margin: 40px 0 6px; }
+  .pager button { font: inherit; cursor: pointer; background: transparent; color: var(--ink); border: 1px solid var(--line); }
+  .pager .pg { font-family: var(--serif); font-size: 17px; width: 40px; height: 40px; line-height: 1; padding: 0 0 .1em; }
+  .pager .pg:hover { border-color: var(--ink); }
+  .pager .pg.on { background: var(--ink); border-color: var(--ink); color: var(--paper); cursor: default; }
+  .pager .pn { font-size: 13px; height: 40px; padding: 0 12px; letter-spacing: .08em; }
+  .pager .pn:hover:not(:disabled) { border-color: var(--ink); }
+  .pager .pn:disabled { opacity: .35; cursor: default; }
+  .pager-note { text-align: center; font-size: 12px; color: var(--sub); margin: 0; }
+  @media (max-width: 640px) {
+    .wordpage .word-head { scroll-margin-top: 110px; }
+    .pager { gap: 5px; } .pager .pg { width: 36px; height: 36px; font-size: 16px; } .pager .pn { height: 36px; padding: 0 9px; font-size: 12px; }
+  }
+  /* 横に並ぶボタンのまとまり */
+  .btns { display: flex; flex-wrap: wrap; gap: 10px 12px; }
+  /* スマホでは、言葉のタブを折り返さずに一列に並べる（間を詰めて、幅いっぱいに均等に置く） */
+  @media (max-width: 640px) {
+    /* ページの見出しは、なるべく一行に収まる大きさにする */
+    .prose h2 { font-size: 22px; letter-spacing: .1em; }
+    .prose h3 { letter-spacing: .04em; }
+    .an-head h2, .page-h { font-size: 22px; letter-spacing: .06em; }
+    .person-head h2 { font-size: 21px; letter-spacing: .06em; }
+    /* ボタンが横に並ぶところは、縦に同じ幅でそろえる */
+    .btns, .links { flex-direction: column; align-items: stretch; gap: 10px; }
+    .btns .btn, .links .btn { text-align: center; margin: 0; }
+    /* 辞書ページの「一覧／1ページずつ読む／並びをまぜる／考えた人をすべてひらく」は、2つずつ並べる */
+    .wordpage .toolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+    .wordpage .toolbar > * { text-align: center; padding: 6px 4px; font-size: 12px; white-space: nowrap; }
+    .word-tabs { flex-wrap: nowrap; gap: 0; justify-content: space-between; }
+    .word-tabs a { flex: none; padding: 4px 8px; white-space: nowrap; }
+  }
   .spread .bar { border-radius: 0; }
 
   @media (max-width: 640px) {
@@ -468,8 +505,8 @@
   .prose .lead { font-family: var(--serif); font-size: 18.5px; font-weight: 600; line-height: 1.95; letter-spacing: .03em; margin-bottom: 1.6em; }
   .prose .key { text-align: center; font-family: var(--serif); font-size: 22px; font-weight: 700; letter-spacing: .12em; line-height: 1.6; padding: 22px 8px; margin: 2.2em 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
   .prose .key .nb { display: inline-block; }
-  .prose h3 { display: flex; align-items: center; gap: .6em; margin-top: 2.6em; }
-  .prose h3::before { content: ""; flex: none; width: .45em; height: .45em; background: var(--red); }
+  .prose h3 { margin-top: 2.6em; }
+  .prose h3::before { content: ""; display: inline-block; width: .45em; height: .45em; margin-right: .6em; vertical-align: .12em; background: var(--red); }
   .prose ul { list-style: none; padding-left: 0; }
   .prose ul > li { position: relative; padding-left: 1.4em; font-size: 14.5px; line-height: 1.95; margin-bottom: .7em; }
   .prose ul > li::before { content: ""; position: absolute; left: .15em; top: .98em; width: .6em; height: 1px; background: var(--ink); }
@@ -551,11 +588,18 @@
   .sense .sno { margin-top: calc((var(--dfs) * 1.7 - 1.8em) / 2); }
   .sno { line-height: 1; padding-bottom: .16em; box-sizing: border-box; }
   .reader .sense { margin: 0; }
-  @media (max-width: 760px) { .sense { --k: .5; } }
+  /* スマホでは、ずらさずにそろえて並べる */
+  @media (max-width: 760px) { .sense { --k: 0; } }
   @media (prefers-reduced-motion: reduce) { .bara i { transition: none; } }
 
   /* ===== 生きている文字：1文字ずつずれて集まり、ゆっくり揺れる ===== */
   /* 解釈の文章、表紙のサブタイトル、はじめにの一文、人から読むの解釈、「言葉」についてのアンケート、おわりにの問い */
+  /* 言葉のまとまり：途中では改行しない。見出しや解釈は、行の長さがそろうように折り返す */
+  /* スマホ（幅が狭いとき）だけ。PCでは横幅に余裕があるので、ふつうに折り返す */
+  @media (max-width: 760px) {
+    .ph { white-space: nowrap; }
+    h2, h3, .person-tile .self, .prose.end ol li { text-wrap: pretty; }
+  }
   .live .ch { display: inline-block; white-space: pre; transform: translate(var(--x), var(--y)) rotate(var(--r)); opacity: 0;
     transition: transform 2.8s cubic-bezier(.2,.6,.2,1) var(--d), opacity 2s ease var(--d); }
   .live.alive .ch { opacity: 1; transform: translate(0, var(--sy)) rotate(var(--sr)); }
@@ -654,7 +698,7 @@
   </div>
 </aside>
 <main id="app"></main>
-<footer>女子美術大学 共創デザイン学科 卒業研究「言葉の解釈の違いから、他者を知る」　松崎梨世　<a href="#/about" style="color:inherit">掲載について</a></footer>
+<footer><span class="fp">女子美術大学 共創デザイン学科 卒業研究</span><span class="fp">「言葉の解釈の違いから、他者を知る」</span><span class="fp">松崎梨世　<a href="#/about" style="color:inherit">掲載について</a></span></footer>
 
 <!-- 本番データ（任意）。同じフォルダに data.js があれば読み込まれ、なければ無視されます -->
 <script src="data.js" onerror="this.remove()"></script>
@@ -998,6 +1042,9 @@ function downloadDataJs(list) {
    ========================================================= */
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 const app = document.getElementById('app');
+// 1 → 一、10 → 十、12 → 十二、20 → 二十（ページ番号用）
+const kanjiNum = n => { const d = '〇一二三四五六七八九'; if (n < 10) return d[n]; const t = Math.floor(n / 10), o = n % 10;
+  return (t > 1 ? d[t] : '') + '十' + (o ? d[o] : ''); };
 const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 function toast(msg) {
   const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
@@ -1087,15 +1134,17 @@ function colorRain(wordId, entries) {
 }
 
 // 解釈ごとに、ばらけ具合を決める（同じ解釈はいつも同じ位置）
-function scatter(e) {
+// PCでは、解釈のまとまりを左右交互に、はっきりずらして置く（揃え忘れに見えないように、ずれを大きく）
+// 奇数番は左寄り、偶数番は右寄り。寄せ方と幅、上の余白は解釈ごとに少しずつ変える
+function scatter(e, no = 1) {
   let h = 2166136261;
   for (const ch of String(e.text || '') + '|' + String(e.name || '') + '|' + String(e.word || '')) { h ^= ch.codePointAt(0); h = Math.imul(h, 16777619) >>> 0; }
   const rnd = () => { h ^= h << 13; h >>>= 0; h ^= h >> 17; h ^= h << 5; h >>>= 0; return h / 4294967296; };
-  const room = 4 + rnd() * 14;          // まとまりを細くする幅（%）
-  const left = rnd() * room;            // そのうち左にとる幅
-  const rot = (rnd() * 12 - 6).toFixed(1);
-  const gap = Math.round(rnd() * 18);   // 上の余白のゆらぎ（px）
-  return `--dl:${left.toFixed(1)};--dr:${(room - left).toFixed(1)};--rot:${rot}deg;--gap:${gap}px`;
+  const room = 16 + rnd() * 14;                                   // まとまりを細くする幅（%）：16〜30%
+  const toLeft = no % 2 === 1;
+  const left = toLeft ? room * rnd() * .2 : room * (.8 + rnd() * .2); // 左に寄せるか、右に寄せるか
+  const gap = Math.round(12 + rnd() * 30);                         // 上の余白（px）：12〜42px
+  return `--dl:${left.toFixed(1)};--dr:${(room - left).toFixed(1)};--gap:${gap}px`;
 }
 
 // 解釈に添えるイラスト（「言葉|ペンネーム」→ illust フォルダの画像）
@@ -1157,7 +1206,7 @@ function cardHTML(e, no, showWord) {
   const who = [age(p.age), shown(p.role)].filter(Boolean).join('・');
   const ps = personOf(e);
   return `
-  <article class="card sense${ill ? ' has-ill' : ''}" tabindex="0" style="--c:${esc(e.color || w.color)};${scatter(e)}" aria-label="押すと、この解釈を考えた人がひらきます">
+  <article class="card sense${ill ? ' has-ill' : ''}" tabindex="0" style="--c:${esc(e.color || w.color)};${scatter(e, no)}" aria-label="押すと、この解釈を考えた人がひらきます">
     <span class="sno">${no}</span>
     <div class="sbody">
       ${showWord ? `<a class="sword" href="#/word/${w.id}">${w.yomi}<b>【</b>${w.label}<b>】</b></a>` : ''}
@@ -1262,7 +1311,7 @@ function viewWord(id, mode) {
       </div>
     </div>
     <div id="body"></div>
-    <p style="text-align:center;margin-top:44px"><a class="btn" href="#/compare?word=${w.id}">「${w.label}」をあなたの解釈とくらべる</a>　<a class="btn" href="#/add?word=${w.id}">「${w.label}」にあなたの解釈をくわえる</a></p>
+    <p class="btns" style="justify-content:center;margin-top:44px"><a class="btn" href="#/compare?word=${w.id}">「${w.label}」をあなたの解釈とくらべる</a><a class="btn" href="#/add?word=${w.id}">「${w.label}」にあなたの解釈をくわえる</a></p>
   </section>`;
   const body = document.getElementById('body');
   colorRain(w.id, entries);
@@ -1292,9 +1341,32 @@ function viewWord(id, mode) {
     return;
   }
 
-  const draw = list => { body.innerHTML = `<div class="grid">${list.map((e, k) => cardHTML(e, entries.indexOf(e) + 1)).join('')}</div>`; bindCards(body); };
-  draw(entries);
-  document.getElementById('shuffle').onclick = () => draw(shuffle(entries));
+  // 一覧は10件ずつのページに分け、下にページ番号（一 二 三 …）を置く。番号は全体の通し番号のまま
+  const PER = 10;
+  let order = entries, page = 0;
+  const pages = () => Math.ceil(order.length / PER);
+  const pagerHTML = () => {
+    if (pages() < 2) return '';
+    const nums = Array.from({ length: pages() }, (_, k) =>
+      `<button type="button" class="pg${k === page ? ' on' : ''}" data-p="${k}" aria-label="${k + 1}ページ目"${k === page ? ' aria-current="page"' : ''}>${kanjiNum(k + 1)}</button>`).join('');
+    const from = page * PER + 1, to = Math.min(order.length, (page + 1) * PER);
+    return `<nav class="pager" aria-label="ページ">
+      <button type="button" class="pn" data-p="${page - 1}" ${page === 0 ? 'disabled' : ''}>‹ 前へ</button>${nums}
+      <button type="button" class="pn" data-p="${page + 1}" ${page === pages() - 1 ? 'disabled' : ''}>次へ ›</button>
+    </nav><p class="pager-note">${from}〜${to}人目　／　${order.length}人</p>`;
+  };
+  const draw = (scroll) => {
+    const list = order.slice(page * PER, (page + 1) * PER);
+    body.innerHTML = `<div class="grid">${list.map(e => cardHTML(e, entries.indexOf(e) + 1)).join('')}</div>${pagerHTML()}`;
+    bindCards(body);
+    body.querySelectorAll('.pager button[data-p]').forEach(b => b.onclick = () => {
+      const p = +b.dataset.p; if (p < 0 || p >= pages() || p === page) return;
+      page = p; draw(true);
+    });
+    if (scroll) app.querySelector('.word-head').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  draw(false);
+  document.getElementById('shuffle').onclick = () => { order = shuffle(entries); page = 0; draw(false); };
   document.getElementById('flipAll').onclick = () => {
     const cards = [...body.querySelectorAll('.card')];
     const toBack = cards.some(c => !c.classList.contains('flipped'));
@@ -1310,7 +1382,7 @@ function viewSearch(q) {
   app.innerHTML = `
   <section class="fade">
     <span class="pill">逆引き　解釈 → 言葉</span>
-    <h2 style="font-family:var(--serif);font-weight:500;font-size:30px;letter-spacing:.15em;margin:14px 0 4px">解釈から、言葉をひく</h2>
+    <h2 class="page-h">解釈から、言葉をひく</h2>
     <p class="sample-note">気になる感覚やキーワードから、それがどの言葉の解釈として語られたかを探せます。同じ「あたたかい」が、ある人には「優しさ」で、別の人には「幸せ」かもしれません。</p>
     <form class="search-box" id="sf"><input id="q" type="text" placeholder="例：ひとり、家族、こわい、安心" value="${esc(q)}"><button class="btn fill" type="submit">ひく</button></form>
     <div class="tags">${tags.map(([t, n]) => `<button class="chip ${t === q ? 'on' : ''}" data-t="${esc(t)}">${esc(t)} <small style="opacity:.6">${n}</small></button>`).join('')}</div>
@@ -1477,7 +1549,7 @@ function viewAbout() {
     <h3>このブラウザに保存される情報</h3>
     <p>「解釈をくわえる」で送った内容の控えは、確認待ちの表示のために、お使いのブラウザの中にだけ保存されます。制作者がこの控えを見ることはありません。</p>
 
-    <p style="margin-top:2.4em"><a class="btn fill" href="#/add">あなたの解釈をくわえる</a>　<a class="btn" href="#/">表紙へもどる</a></p>
+    <p class="btns" style="margin-top:2.4em"><a class="btn fill" href="#/add">あなたの解釈をくわえる</a><a class="btn" href="#/">表紙へもどる</a></p>
   </article>`;
 }
 
@@ -1692,7 +1764,7 @@ function viewEnd() {
       <li>反対に、知らない誰かの解釈に、深くうなずいたものはありましたか。</li>
       <li>身近な人は、同じ言葉をどう解釈していると思いますか。今度、聞いてみませんか。</li>
     </ol>
-    <p style="margin-top:2em"><a class="btn fill" href="#/compare">あなたの解釈とくらべる</a>　<a class="btn" href="#/add">あなたの解釈をくわえる</a>　<a class="btn" href="#/">表紙へもどる</a></p>
+    <p class="btns" style="margin-top:2em"><a class="btn fill" href="#/compare">あなたの解釈とくらべる</a><a class="btn" href="#/add">あなたの解釈をくわえる</a><a class="btn" href="#/">表紙へもどる</a></p>
   </article>`;
 }
 
@@ -1759,7 +1831,7 @@ function viewImport() {
         <p style="font-size:13px;margin:0 0 8px">プロフィールの列：${prof}${m.consent >= 0 ? '・掲載の可否' : ''}</p>
         ${m.unused.length ? `<p style="font-size:12px;color:var(--sub);margin:0">使わなかった列：${m.unused.map(esc).join('、')}</p>` : ''}
       </fieldset>
-      ${r.entries.length ? `<p><button class="btn fill" id="use" type="button">このブラウザで表示を確認する</button>　<button class="btn" id="dl" type="button">data.js を書き出す</button></p>
+      ${r.entries.length ? `<p class="btns"><button class="btn fill" id="use" type="button">このブラウザで表示を確認する</button><button class="btn" id="dl" type="button">data.js を書き出す</button></p>
       <p class="sample-note">「表示を確認する」はこのブラウザだけに反映されます。公開するときは data.js を書き出して index.html と同じフォルダに置き、取り込みを解除してください。</p>`
       : `<p class="empty">カードにできる回答が見つかりませんでした。見出しの決まりを確認してください。</p>`}`;
     const use = document.getElementById('use');
@@ -2215,6 +2287,69 @@ loadRemote().then(ok => {
   const HOSTS = '.sense, .person-entry, .voice';
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   document.documentElement.classList.add('live-on');
+
+  // ── 目立つ文字（見出し・ボタンなど。解釈の文章は除く）は、言葉のまとまりの途中で改行しない ──
+  // 「大切な／人と／会えたり、／仲の／いい／人と…」のように、文節に近いまとまりに区切り、
+  // まとまりごとに改行しない箱（.ph）に入れる。本文はふつうの折り返しのまま
+  const PHRASE = [
+    'h1', 'h2', 'h3', '.titlebox .lead', '.person-tile .self',
+    '.prose.end ol li', '.btn', '.chip', '.toolbar button', '.word-tabs a', '.sword', '.shelf-hint', '.toc .lb', '.toc .hint',
+    '#nav a', '.an-head .pill', '.empty',
+  ].join(', ');
+  const kind = ch => /[ぁ-ゖゝゞ]/.test(ch) ? 'H' : /[ァ-ヺー・ヽヾ]/.test(ch) ? 'T' : /[一-龯々〆〇]/.test(ch) ? 'K'
+    : /[「『（(【〈《“]/.test(ch) ? 'P' : /[、。，．,.」』）)】〉》”！？!?…：:；;〜]/.test(ch) ? 'C' : /\s/.test(ch) ? 'S' : 'A';
+  // ひらがなをはさんでも、ひとつの言葉として区切らないもの
+  const KEEP = ['当たり前', '世の中', '思い出', '気持ち', '手作り', '見返り', '木漏れ日', '一人ひとり', '人それぞれ', '問い合わせ',
+    '取り扱い', '取り組', '受け止め', '受け取', '受け入れ', '手に取', '手を差し伸べ', '寄り添', '思いやり', '思い浮か', '一つ', '日々', '居心地'];
+  const phrases = text => {
+    const chars = [...text]; const cuts = new Set(); let prev = ''; let hRun = ''; let beforeH = '';
+    chars.forEach((ch, i) => {
+      const k = kind(ch);
+      if (i > 0) {
+        let cut = false;
+        if (ch === '・') cut = false;                                       // 「・」は行の頭に置かない
+        else if (prev === 'C' && k !== 'C') cut = true;                     // 、。」のあと
+        else if (k === 'P' && prev !== 'P') cut = true;                     // 「の前
+        else if (prev === 'S' || k === 'S') cut = k !== 'C';                // 空白の前後
+        else if (prev === 'H' && /[KTA]/.test(k)) {                         // ひらがなのあとに漢字・カタカナが来たら、新しいまとまり
+          // ただし「お風呂」の「お」や、「満ち足りた」「落ち着く」のように漢字にはさまれた1文字（助詞でないもの）は続ける
+          const prefix = /[おご]$/.test(hRun) && (hRun.length === 1 || /[のなとをにがはでへもやか]./.test(hRun.slice(-2)));
+          const joint = hRun.length === 1 && beforeH === 'K' && !/[のなとをにがはでへもやかよね]/.test(hRun);
+          if (prefix && hRun.length > 1) cuts.add(i - 1);                   // 「キッチンや／お風呂」
+          cut = !prefix && !joint;
+        }
+        if (cut) cuts.add(i);
+      }
+      if (k === 'H') { if (prev !== 'H') { hRun = ch; beforeH = prev; } else hRun += ch; } else hRun = '';
+      prev = k;
+    });
+    // 例外の言葉の途中では区切らない
+    KEEP.forEach(w => { let at = text.indexOf(w);
+      while (at >= 0) { const s = [...text.slice(0, at)].length, n = [...w].length; for (let j = s + 1; j < s + n; j++) cuts.delete(j); at = text.indexOf(w, at + 1); } });
+    const out = []; let cur = '';
+    chars.forEach((ch, i) => { if (cuts.has(i)) { out.push(cur); cur = ''; } cur += ch; });
+    if (cur) out.push(cur);
+    return out;
+  };
+  const phrasify = el => {
+    if (el.dataset.ph) return; el.dataset.ph = '1';
+    const walk = node => [...node.childNodes].forEach(c => {
+      if (c.nodeType === 3) {
+        const ps = phrases(c.textContent);
+        if (ps.length < 2 && !/\S/.test(c.textContent)) return;
+        const frag = document.createDocumentFragment();
+        ps.forEach(p => {
+          // 長すぎるまとまり（14文字をこえる）は箱に入れず、ふつうに折り返す
+          if (/^\s+$/.test(p) || [...p].length > 14 || p.includes('\n')) { frag.appendChild(document.createTextNode(p)); return; }
+          const s = document.createElement('span'); s.className = 'ph'; s.textContent = p; frag.appendChild(s);
+        });
+        c.replaceWith(frag);
+      } else if (c.nodeType === 1 && !c.matches('.ph, .ch, .nb, .mine-badge, .bara, i, svg, img, input, br')) walk(c);
+    });
+    walk(el);
+  };
+  const phraseScan = root => root.querySelectorAll(PHRASE).forEach(phrasify);
+  phraseScan(document);
   const R = (a, b) => (a + Math.random() * (b - a)).toFixed(3);
   // 解釈の文章は、人が書いていくように1文字ずつ現れる
   const WRITE = '.sense .def, .person-entry blockquote';
@@ -2294,7 +2429,7 @@ loadRemote().then(ok => {
     if (reduce) { el.classList.add('alive', 'settled'); if (host) host.classList.add('alive'); if (isWrite) finishWrite(el, host); }
     else io.observe(el);
   };
-  const scan = root => root.querySelectorAll(TARGETS).forEach(el => { if (!el.dataset.alive) liven(el); });
+  const scan = root => { phraseScan(root); root.querySelectorAll(TARGETS).forEach(el => { if (!el.dataset.alive) liven(el); }); };
   const app = document.getElementById('app') || document.body;
   new MutationObserver(() => scan(app)).observe(app, { childList: true, subtree: true });
   scan(app);
