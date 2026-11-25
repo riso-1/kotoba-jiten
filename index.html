@@ -1537,6 +1537,7 @@ function viewAbout() {
       <li>『「言葉」についてのアンケート』には、言葉そのものについての設問への回答を原文のまま掲載しています。「ある」「なし」などの短い回答と、制作者個人へのメッセージは省略しています。</li>
       <li>逆引き用のキーワードは、文章中の表現から自動で付けています。回答者が付けたものではありません。</li>
       <li>イメージの文章に色の名前（「灰色」「薄いピンク」など）が書かれている場合は、その色を小さな丸で添えています。丸の色は言葉から自動で選んだもので、回答者が選んだ色ではありません。投稿で色を選んだ場合は、その色を表示します。</li>
+      <li>表紙の本やグラフなどで言葉ごとに使っている色は、5つの言葉を見分けるための目印です。言葉の意味やイメージを表すものではありません。</li>
       <li>解釈に添えたイラストは、解釈をもとに制作者が描いたものです。回答者が描いたものではありません。</li>
       <li>解釈の下の「考えた人」には、回答者が入力したペンネーム・年代・立場などを表示しています。本名や連絡先はお聞きしていません。</li>
       <li>「人から読む」では、アンケートの同じ回答者による5つの言葉の解釈を、まとめて並べています。</li>
@@ -2401,18 +2402,25 @@ loadRemote().then(ok => {
     const n = el.querySelectorAll('.ch').length;
     setTimeout(() => el.classList.add('settled'), 2800 + Math.min(n, 60) * 40);
   };
-  // 順番待ちはしない。画面に入ったものは、その場ですぐ書き始める（同時に入ったものは、少しずつずらす）
+  // 画面に入ったものを順番待ちに入れて、ページの上にあるものから、ひとつずつ間をあけて出す
+  const queue = []; let pumping = false;
+  const byPage = (a, b) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);
+  const pump = () => {
+    if (!queue.length) { pumping = false; return; }
+    pumping = true;
+    const el = queue.shift();
+    if (!el.isConnected) return pump();
+    // もう画面の上に過ぎたものは、書かずにすぐ出して次へ。たくさん待っているときは間を少し詰める
+    const past = el.getBoundingClientRect().bottom < 0;
+    reveal(el, past);
+    if (past) return pump();
+    const gap = el.closest('.sense, .person-entry') ? (queue.length > 3 ? 700 : 1500) : 250;
+    setTimeout(pump, gap);
+  };
   const io = new IntersectionObserver(es => {
-    es.filter(en => en.isIntersecting)
-      .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
-      .forEach((en, k) => {
-        const el = en.target; io.unobserve(el);
-        setTimeout(() => {
-          if (!el.isConnected) return;
-          // もう画面の上に過ぎたものは、書かずにすぐ出す
-          reveal(el, el.getBoundingClientRect().bottom < 0);
-        }, k * 150);
-      });
+    es.filter(en => en.isIntersecting).forEach(en => { io.unobserve(en.target); queue.push(en.target); });
+    queue.sort(byPage);
+    if (!pumping) pump();
   }, { rootMargin: '0px 0px -8% 0px' });
   const liven = el => {
     if (el.dataset.alive) return; el.dataset.alive = '1';
