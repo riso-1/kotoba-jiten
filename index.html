@@ -645,6 +645,13 @@
   /* 表紙の本の背表紙の文字は、タイトルと同じ書体 */
   .book .t { font-family: var(--title); font-weight: 600; }
 
+  /* 表紙の背表紙の色：色に制作者の解釈が入らないよう、5冊とも同じ墨色の布の装丁に、金色の文字と線をのせる */
+  .book { padding: 8px 0; color: #d9bd80;
+    background: linear-gradient(90deg, rgba(0,0,0,.35), rgba(255,255,255,.07) 16%, rgba(255,255,255,0) 42%, rgba(0,0,0,.1) 88%, rgba(0,0,0,.4)), #332d27; }
+  .book .plate { flex: 1; width: 64%; display: flex; flex-direction: column; align-items: center; padding: 6px 0 4px; }
+  .book .band { border-color: rgba(200,169,106,.75); }
+  .book .y, .book .n { color: #c8a96a; }
+
   /* 辞書ページ：スクロールすると、解釈がひとつずつ現れる */
   html.live-on .sense { transition: opacity 3.2s cubic-bezier(.4,0,.2,1), transform 3.8s cubic-bezier(.2,.6,.2,1), filter 3.2s ease; }
   html.live-on .sense:not(.alive) { opacity: 0; filter: blur(6px); transform: translateY(18px) rotate(var(--ir, 0deg)); }
@@ -1261,12 +1268,14 @@ function viewCover() {
     <p class="shelf-hint">気になる一冊を、手にとってください</p>
     <div class="shelf">
       <div class="books">
-        ${WORDS.map((w, i) => `<a class="book b${i + 1}" href="#/word/${w.id}" style="--c:${w.color}" aria-label="${w.label}（${w.yomi}）の辞書をひらく">
+        ${WORDS.map((w, i) => `<a class="book b${i + 1}" href="#/word/${w.id}" aria-label="${w.label}（${w.yomi}）の辞書をひらく">
+          <span class="plate">
           <span class="band"></span>
           <span class="t">${w.label}</span>
           <span class="y">${w.yomi}</span>
           <span class="n">${all.filter(e => e.word === w.id).length}人</span>
           <span class="band"></span>
+          </span>
         </a>`).join('')}
       </div>
       <div class="shelf-board"></div>
