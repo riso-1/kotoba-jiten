@@ -734,12 +734,14 @@
 /* =========================================================
    言葉の定義
    ========================================================= */
+// 言葉の色：色に制作者の解釈が入らないよう、5つとも同じ墨色にそろえる（棒グラフ・分析の見出し・引用の線などに使う）
+const WORD_INK = '#3a342d';
 const WORDS = [
-  { id: 'futsu',    label: '普通',   yomi: 'ふつう',   color: '#8a9ba3' },
-  { id: 'jiyu',     label: '自由',   yomi: 'じゆう',   color: '#6f9fb8' },
-  { id: 'yasashisa',label: '優しさ', yomi: 'やさしさ', color: '#c29a86' },
-  { id: 'shiawase', label: '幸せ',   yomi: 'しあわせ', color: '#c9a95c' },
-  { id: 'ibasho',   label: '居場所', yomi: 'いばしょ', color: '#7d9a7f' },
+  { id: 'futsu',    label: '普通',   yomi: 'ふつう',   color: WORD_INK },
+  { id: 'jiyu',     label: '自由',   yomi: 'じゆう',   color: WORD_INK },
+  { id: 'yasashisa',label: '優しさ', yomi: 'やさしさ', color: WORD_INK },
+  { id: 'shiawase', label: '幸せ',   yomi: 'しあわせ', color: WORD_INK },
+  { id: 'ibasho',   label: '居場所', yomi: 'いばしょ', color: WORD_INK },
 ];
 const wordById = id => WORDS.find(w => w.id === id);
 
