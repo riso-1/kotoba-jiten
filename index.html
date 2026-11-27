@@ -596,6 +596,14 @@
     .toc-in { padding: 20px 22px 40px; }
   }
   @media (prefers-reduced-motion: reduce) { .toc, .toc-backdrop { transition: none; } }
+  /* 掲載について：今のページの上に重ねて開く */
+  body.about-open { overflow: hidden; }
+  .about-backdrop { position: fixed; inset: 0; background: rgba(31,28,24,.35); z-index: 50; }
+  .about-panel { position: fixed; inset: 0; z-index: 51; overflow-y: auto; overscroll-behavior: contain; padding: 0 16px 40px; }
+  .about-panel .prose { margin-top: 0; }
+  .about-bar { position: sticky; top: 0; z-index: 1; max-width: 680px; margin: 24px auto 0; display: flex; justify-content: flex-end; padding: 10px 0; }
+  .about-bar .about-close { background: var(--ink); color: var(--paper); border: none; cursor: pointer; font-family: var(--sans); font-size: 13px; letter-spacing: .1em; padding: 8px 16px; }
+  @media (max-width: 640px) { .about-panel { padding: 0 0 32px; } .about-bar { margin-top: 0; padding: 8px 10px; background: var(--bg); } }
 
   /* ===== ばらばら：少しずつズレた要素 ===== */
   /* タイトルの文字が1字ずつずれる */
@@ -1480,7 +1488,7 @@ function viewAdd(preWord) {
         <div class="row"><label for="interest">今もっとも関心を寄せていること <small class="opt-br">（任意）</small></label><input type="text" id="interest"></div>
         <div class="row"><label for="self">今の自分をもっともよく表す言葉 <small class="opt-br">（任意）</small></label><input type="text" id="self"></div>
       </fieldset>
-      ${canPost() ? `<div class="row"><label style="font-weight:400"><input type="checkbox" id="consent" required> <a href="#/about" target="_blank">掲載について</a>を読み、入力した内容が辞書に掲載されることに同意します</label></div>` : ''}
+      ${canPost() ? `<div class="row"><label style="font-weight:400"><input type="checkbox" id="consent" required> <a href="#/about">掲載について</a>を読み、入力した内容が辞書に掲載されることに同意します</label></div>` : ''}
       <p class="ans-count" id="ansCount" aria-live="polite"></p>
       <div class="ans-step-btns"><button type="button" class="btn" data-prev>もどる</button><button class="btn fill" type="submit" id="submitBtn">${canPost() ? '送る' : '辞書にくわえる'}</button></div>
       </div>
@@ -1596,11 +1604,48 @@ function viewAdd(preWord) {
    「掲載の取り下げ・お問い合わせ」に表示される。空のままなら制作者名のみ表示
    ========================================================= */
 const CONTACT = { label: 'お問い合わせフォーム', url: 'https://docs.google.com/forms/d/e/1FAIpQLSfXaMf4-SjyXenTnP3bi9lK-E2WjipIkr4c6GrWquLJlKZzyg/viewform' };
-function viewAbout() {
+function viewAbout() { app.innerHTML = aboutHTML(false); }
+// 「掲載について」は、ほかのページから押したときは今のページの上に重ねて開き、
+// 閉じると元のページ（書きかけの内容や読んでいた位置もそのまま）に戻る
+function openAboutPanel() {
+  if (document.querySelector('.about-panel')) return;
+  const opener = document.activeElement;
+  const bd = document.createElement('div'); bd.className = 'about-backdrop';
+  const pn = document.createElement('div'); pn.className = 'about-panel';
+  pn.setAttribute('role', 'dialog'); pn.setAttribute('aria-modal', 'true'); pn.setAttribute('aria-label', '掲載について');
+  pn.innerHTML = `<div class="about-bar"><button type="button" class="about-close">✕ もとのページにもどる</button></div>${aboutHTML(true)}`;
+  document.body.append(bd, pn); document.body.classList.add('about-open');
+  // スマホのブラウザの「戻る」でも閉じられるように、開いたときに履歴を1つ積む
+  history.pushState({ aboutPanel: true }, '', location.href);
+  const close = () => {
+    document.removeEventListener('keydown', onKey); window.removeEventListener('hashchange', close); window.removeEventListener('popstate', close);
+    bd.remove(); pn.remove(); document.body.classList.remove('about-open');
+    if (opener && opener.isConnected) opener.focus({ preventScroll: true });
+  };
+  // ボタンなどで閉じるときは、積んだ履歴を戻す（戻ると close が呼ばれる）
+  const shut = () => { if (history.state && history.state.aboutPanel) history.back(); else close(); };
+  const onKey = e => { if (e.key === 'Escape') shut(); };
+  document.addEventListener('keydown', onKey);
+  window.addEventListener('popstate', close);
+  window.addEventListener('hashchange', close); // ほかのページへ移ったら閉じる
+  bd.onclick = shut;
+  pn.querySelectorAll('.about-close').forEach(b => b.onclick = shut);
+  // 中のリンクでほかのページへ移るときは、重ねたものを閉じてから移る
+  pn.addEventListener('click', e => { if (e.target.closest('a[href^="#/"]')) close(); });
+  pn.querySelector('.about-close').focus();
+}
+document.addEventListener('click', e => {
+  // 目次から開いたときは、これまでどおり1つのページとして開く
+  const a = e.target.closest('a[href="#/about"]');
+  if (!a || a.closest('#toc') || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+  if (/^#\/about/.test(location.hash)) return;
+  e.preventDefault(); openAboutPanel();
+});
+function aboutHTML(inPanel) {
   const contact = CONTACT.url
     ? `<p>下記までご連絡ください。<br><a href="${esc(CONTACT.url)}" target="_blank" rel="noopener">${esc(CONTACT.label || CONTACT.url)}</a></p>`
     : `<p>制作者までお知らせください。</p>`;
-  app.innerHTML = `
+  return `
   <article class="prose fade">
     <h2>掲載について</h2>
     <p class="lead">「ばらばら辞書」は、女子美術大学 共創デザイン学科 松崎梨世の卒業研究「言葉の解釈の違いから、他者を知る」の制作物です。ひとつの言葉に対するさまざまな解釈を、ひとつの答えにまとめずに並べています。</p>
@@ -1642,7 +1687,9 @@ function viewAbout() {
     <h3>このブラウザに保存される情報</h3>
     <p>「解釈をくわえる」で送った内容の控えは、確認待ちの表示のために、お使いのブラウザの中にだけ保存されます。制作者がこの控えを見ることはありません。</p>
 
-    <p class="btns" style="margin-top:2.4em"><a class="btn fill" href="#/add">あなたの解釈をくわえる</a><a class="btn" href="#/">表紙へもどる</a></p>
+    ${inPanel
+      ? `<p class="btns" style="margin-top:2.4em"><button type="button" class="btn fill about-close">もとのページにもどる</button></p>`
+      : `<p class="btns" style="margin-top:2.4em"><a class="btn fill" href="#/add">あなたの解釈をくわえる</a><a class="btn" href="#/">表紙へもどる</a></p>`}
   </article>`;
 }
 
