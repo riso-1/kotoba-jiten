@@ -462,6 +462,8 @@
   .sense .img { font-size: 13px; line-height: 1.9; color: var(--sub); margin: 0 0 6px; white-space: pre-line; overflow-wrap: anywhere; }
   .sense .img .swatch, .person-entry .image .swatch { display: inline-block; width: 16px; height: 16px; margin-right: 5px; vertical-align: -3px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.18); }
   .sense .img .swatch:last-of-type, .person-entry .image .swatch:last-of-type { margin-right: 8px; }
+  /* 透明：白と見分けられるよう、点線のふちだけの丸にする */
+  .swatch.clear { background: none; box-shadow: none; border: 1px dashed var(--sub); box-sizing: border-box; }
   .sense .who { font-family: var(--sans); font-size: 12px; color: var(--sub); display: flex; gap: 4px 12px; flex-wrap: wrap; align-items: baseline; }
   .sense .who .nm { color: var(--ink); }
   .sense .who .nm::before { content: "▷ "; color: var(--red); }
@@ -1112,7 +1114,12 @@ const DEFAULT_IMAGE_COLOR = '#8fb3bd';
 const chosenColor = e => { const c = String(e.color || '').trim().toLowerCase(); return /^#[0-9a-f]{6}$/.test(c) && c !== DEFAULT_IMAGE_COLOR ? c : ''; };
 // イメージの文章に書かれた色の名前から、色の丸を添える（制作者が言葉から選んだ色。回答者が選んだ色ではない）
 // 長い名前から順に探す（「スカイブルー」を「ブルー」より先に、「水色」を「色」と取り違えない）
+// 1色で表せない色（虹色・カラフル・パステル・モノトーン）は、何色かを混ぜた丸にする。透明は、ふちだけの丸
+const RAINBOW = 'linear-gradient(135deg, #e5675d, #ecb24b, #e9da5a, #79bd7e, #6b9fd8, #9f7fcb)';
 const COLOR_WORDS = [
+  ['無色透明', 'transparent'], ['薄紅色', '#efb4b8'], ['紅色', '#c44058'], ['肌色', '#f2c9a7'], ['無彩色', '#b5b3ae'],
+  ['虹色', RAINBOW], ['カラフル', RAINBOW], ['パステル', 'linear-gradient(135deg, #f6c3cf, #fbe5a6, #c4e6cf, #c4daf3)'],
+  ['モノトーン', 'linear-gradient(135deg, #2a2a2a 50%, #f4f1ea 50%)'], ['透明', 'transparent'], ['無色', 'transparent'],
   ['スカイブルー', '#6fb9e8'], ['クリーム色', '#f1e6c4'], ['クリーム', '#f1e6c4'], ['若草色', '#a7c47a'], ['桜色', '#f4d3d6'],
   ['水色', '#9cd0e6'], ['空色', '#8ec5e8'], ['灰色', '#9b9a95'], ['グレー', '#9b9a95'], ['グレイ', '#9b9a95'],
   ['ベージュ', '#dccbad'], ['オレンジ', '#e8913a'], ['橙色', '#e8913a'], ['ピンク', '#f0a6b6'], ['桃色', '#f0a6b6'],
@@ -1125,21 +1132,69 @@ const COLOR_WORDS = [
 const COLOR_RE = new RegExp(`(薄い|淡い|ペール|やわらかな|濃い|深い)?(${COLOR_WORDS.map(([w]) => w).join('|')})(?!ちゃん|ん坊)`, 'g');
 const mixHex = (hex, to, t) => '#' + [1, 3, 5].map(i => { const a = parseInt(hex.slice(i, i + 2), 16), b = parseInt(to.slice(i, i + 2), 16);
   return Math.round(a + (b - a) * t).toString(16).padStart(2, '0'); }).join('');
+// ── 色のニュアンス ──
+// 「海のような青」「ほっぺみたいな薄紅色」のように、色の名前とひとかたまりになっている言葉から、色合いを少し変える。
+// 「、」「。」や空白などで区切られた先の、風景やイメージの言葉からは色を拾わない（例：「青、海」は見ない）
+const COLOR_FAMILY = { blue: ['青', 'ブルー', '水色', '空色', 'スカイブルー', '紺'], green: ['緑', 'グリーン', 'みどり', '黄緑', '薄緑', '若草色'],
+  orange: ['オレンジ', '橙色', '暖色'], pink: ['ピンク', '桃色', '桜色', '薄紅色', '紅色'], yellow: ['黄色', 'イエロー'], red: ['赤', 'レッド', '朱色'] };
+// 1. かたまりの中の景色の言葉で、その色らしい色合いにする
+const COLOR_SCENE = [
+  { fam: 'blue',   words: ['青空', '空', 'そら', 'スカイ'],                 hex: '#86c1ea' },  // 空の青
+  { fam: 'blue',   words: ['海', '波', '水面', '湖'],                        hex: '#2f7294' },  // 海の青
+  { fam: 'orange', words: ['夕日', '夕方', '夕焼け', '夕暮れ'],              hex: '#e06e3c' },  // 夕焼けのオレンジ
+  { fam: 'yellow', words: ['夕日', '夕方', '夕焼け'],                        hex: '#eba63f' },  // 夕日の黄色
+  { fam: 'yellow', words: ['ひだまり', '日差し', '太陽', '光', '木漏れ日'],  hex: '#f3d062' },  // ひだまりの黄色
+  { fam: 'green',  words: ['草原', '原っぱ', '草', '葉', 'はっぱ', '芝', '若葉', 'クローバー'], hex: '#8cb85a' },  // 草の緑
+  { fam: 'green',  words: ['森', '木', '山', '苔'],                          hex: '#3f6c49' },  // 森の緑
+  { fam: 'pink',   words: ['桜', '花', 'コスモス'],                          hex: '#f2c2cc' },  // 花のピンク
+  { fam: 'pink',   words: ['ほっぺ', '頬'],                                   hex: '#f1b7b4' },  // ほっぺのピンク
+  { fam: 'red',    words: ['夕日', '夕焼け'],                                hex: '#d4553a' },  // 夕焼けの赤
+];
+// 2. かたまりの中のようすの言葉で、明るさ・温かさなどを変える
+const COLOR_MOOD = [
+  { words: ['明るい', 'キラキラ', 'きらきら', '輝', 'ハイトーン', '浅い'], to: '#ffffff', t: .28 },
+  { words: ['やわらか', '柔らか', 'ふんわり', 'ふわふわ', 'ふわっと', 'ほんわか', 'もこもこ', 'ふかふか'], to: '#ffffff', t: .25 },
+  { words: ['あたたか', '暖か', '温か', 'ぽかぽか', 'ポカポカ', 'ぬくもり'], to: '#e9a04c', t: .2 },
+  { words: ['冷た', '涼し', 'ひんやり', 'クール'], to: '#6aa6d6', t: .2 },
+  { words: ['くすんだ', 'くすみ', '落ち着いた', '地味'], to: '#9b9a95', t: .35 },
+  { words: ['暗い', '暗く'], to: '#000000', t: .25 },
+];
+const COLOR_SEP = /[、。，．,.\s　・！？!?／/（）()「」]/;
+const colorChunk = (t, from, to) => { let a = from, b = to;
+  while (a > 0 && !COLOR_SEP.test(t[a - 1])) a--; while (b < t.length && !COLOR_SEP.test(t[b])) b++; return [a, b]; };
+// かたまりの中で、色の名前に近い順に手がかりの言葉をさがす（色の名前そのものの中は見ない。「空色」の「空」など）
+function colorHint(t, from, to, words, [a, b]) {
+  let best = null;
+  words.forEach(w => { let i = t.indexOf(w, a);
+    while (i >= 0 && i + w.length <= b) { const inside = i < to && i + w.length > from; const d = i >= to ? i - to : from - (i + w.length);
+      if (!inside && (!best || d < best.d)) best = { d }; i = t.indexOf(w, i + 1); } });
+  return best;
+}
 function imageColors(text) {
   const t = String(text || '').replace(/面白/g, '');
   const out = []; let m; COLOR_RE.lastIndex = 0;
   while ((m = COLOR_RE.exec(t)) && out.length < 4) {
-    let hex = COLOR_WORDS.find(([w]) => w === m[2])[1];
-    if (/薄い|淡い|ペール|やわらかな/.test(m[1] || '')) hex = mixHex(hex, '#ffffff', .45);
-    if (/濃い|深い/.test(m[1] || '')) hex = mixHex(hex, '#000000', .25);
-    if (!out.some(o => o.hex === hex)) out.push({ hex, name: (m[1] || '') + m[2] });
+    const word = m[2]; let hex = COLOR_WORDS.find(([w]) => w === word)[1];
+    if (hex.startsWith('#')) {
+      const from = m.index, to = m.index + m[0].length, ck = colorChunk(t, from, to);
+      const fam = Object.keys(COLOR_FAMILY).find(f => COLOR_FAMILY[f].includes(word));
+      const vivid = t.slice(Math.max(0, from - 2), from) === '真っ';   // 「真っ青」「真っ赤」は、鮮やかに濃く
+      if (fam && !vivid) { let pick = null;
+        COLOR_SCENE.filter(sc => sc.fam === fam).forEach(sc => { const h = colorHint(t, from, to, sc.words, ck); if (h && (!pick || h.d < pick.d)) pick = { d: h.d, hex: sc.hex }; });
+        if (pick) hex = pick.hex; }
+      if (vivid && hex !== '#ffffff') hex = mixHex(hex, '#000000', .18);
+      if (/薄い|淡い|ペール|やわらかな/.test(m[1] || '')) hex = mixHex(hex, '#ffffff', .45);
+      if (/濃い|深い/.test(m[1] || '')) hex = mixHex(hex, '#000000', .25);
+      COLOR_MOOD.forEach(md => { if (colorHint(t, from, to, md.words, ck)) hex = mixHex(hex, md.to, md.t); });
+    }
+    if (!out.some(o => o.hex === hex)) out.push({ hex, name: (m[1] || '') + word });
   }
   return out;
 }
 // 丸：投稿者が色を選んでいればその色、なければ文章の色の名前から
 const imageSwatches = e => { const c = chosenColor(e);
   if (c) return `<span class="swatch" style="--c:${c}" title="投稿者が選んだイメージの色"></span>`;
-  return imageColors(e.image).map(o => `<span class="swatch" style="--c:${o.hex}" title="「${esc(o.name)}」から"></span>`).join(''); };
+  return imageColors(e.image).map(o => `<span class="swatch${o.hex === 'transparent' ? ' clear' : ''}" style="--c:${o.hex}" title="「${esc(o.name)}」から"></span>`).join(''); };
 
 // 言葉のページを開くと、その言葉で答えられた色の水玉がふんわり降ってきて、下に着く前に消える（一度きり）
 // 多くの人が答えた色ほど、水玉の数も多くなる。同じ言葉のページを開き直しても、しばらくは降らせない
@@ -1153,6 +1208,7 @@ function colorRain(wordId, entries) {
   const now = Date.now();
   if (rainLast.id === wordId && now - rainLast.t < 20000) return;
   const palette = entries.flatMap(e => { const c = chosenColor(e); return c ? [c] : imageColors(e.image).map(o => o.hex); })
+    .filter(h => h !== 'transparent')                 // 透明は水玉にしない
     .map(h => h === '#ffffff' ? '#e9e5dc' : h); // 白は紙の上で消えるので、ほんの少し色をのせる
   stopColorRain();
   if (!palette.length) return;
