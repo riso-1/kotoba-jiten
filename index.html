@@ -180,6 +180,26 @@
   .mine-list .item button { border: none; background: none; color: #b0625a; font-size: 12px; }
   .mine-list .item-btns { display: flex; gap: 4px; flex-shrink: 0; align-items: flex-start; }
   .mine-list .item button[data-cmp] { color: var(--accent); }
+  /* 解釈をくわえる：5つの言葉を、アンケートのように順に答える */
+  .ans-lead { font-size: 14px; line-height: 1.9; margin: 0 0 18px; }
+  .ans-nav { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 22px; }
+  .ans-nav button { font-family: var(--serif); font-size: 15px; padding: 5px 14px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; }
+  .ans-nav button.done { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .ans-nav button.done::after { content: "✓"; font-family: var(--sans); font-size: 11px; margin-left: 6px; }
+  .ans-step[hidden] { display: none !important; }
+  .ans-nav button.cur { box-shadow: 0 3px 0 -1px var(--red); }
+  .ans-step-btns { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin: 8px 0 4px; }
+  .ans-step-btns [data-next], .ans-step-btns [type=submit] { margin-left: auto; }
+  form fieldset.ans-word legend { font-family: var(--serif); font-size: 18px; color: var(--ink); letter-spacing: .08em; }
+  .ans-word legend .q { font-family: var(--sans); font-size: 11px; color: var(--sub); letter-spacing: .1em; margin-right: 8px; vertical-align: 2px; }
+  .ans-count { font-size: 13px; color: var(--sub); margin: 0 0 10px; }
+  @media (max-width: 640px) {
+    .ans-nav { gap: 5px; flex-wrap: nowrap; }
+    .ans-nav button { font-size: 14px; padding: 5px 8px; white-space: nowrap; }
+    .ans-nav button.done::after { content: none; }
+    .ans-step-btns { gap: 8px; }
+    .ans-step-btns .btn { padding-left: 16px; padding-right: 16px; }
+  }
   .toast { position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%); background: var(--accent); color: #fff; padding: 10px 24px; border-radius: 999px; font-size: 14px; animation: fade .3s ease; z-index: 20; }
 
   /* ---- analysis ---- */
@@ -1437,15 +1457,19 @@ function viewAdd(preWord) {
     <p class="sample-note">${canPost()
       ? '送っていただいた解釈は、内容を確認したのち、辞書に掲載されます（匿名・本名や連絡先はお聞きしません）。掲載されるまでは、このブラウザにだけ「確認待ち」として表示されます。'
       : '入力した内容は、このブラウザの中だけに保存されます。'}</p>
+    <p class="ans-lead">5つの言葉について、1つずつお聞きします。できれば5つすべてに答えていただけるとうれしいですが、書きにくい言葉はとばしてもかまいません。あなたのことは最後に1回だけ入力して、まとめて送ります。</p>
     <form id="af">
-      <div class="row"><label>言葉をえらぶ</label>
-        <div class="word-pick">${WORDS.map((w, i) => `<label><input type="radio" name="word" value="${w.id}" ${(preWord ? preWord === w.id : i === 0) ? 'checked' : ''}><span>${w.label}</span></label>`).join('')}</div></div>
-      <div class="row"><label for="text">あなたにとって、その言葉とはどのようなものですか？</label><textarea id="text" required></textarea></div>
-      <div class="row"><label for="reason">そう考える理由や、思い浮かぶ経験・場面 <small class="opt-br">（任意）</small></label><textarea id="reason"></textarea></div>
-      <div class="row"><label for="image">色・形・風景・音・手触りを思い浮かべるとしたら <small>（任意）</small></label>
-        <div class="color-row"><input type="color" id="color" value="${DEFAULT_IMAGE_COLOR}" aria-label="イメージの色"><input type="text" id="image" placeholder="例：夕方の橙色、湯のみの温度"></div>
-        <p class="sample-note" style="margin:6px 0 0">左の四角で色を選ぶと、辞書のイメージの横に小さな丸で表示されます。選ばなければ表示しません。</p></div>
-      <div class="row"><label for="tags">キーワード <small>（任意・読点やスペースで区切る）</small></label><input type="text" id="tags" placeholder="例：安心、ひとり"></div>
+      <div class="ans-nav" role="list" aria-label="言葉を切り替える">${WORDS.map(w => `<button type="button" role="listitem" data-go="${w.id}">${w.label}</button>`).join('')}</div>
+      ${WORDS.map((w, i) => `<fieldset class="ans-word ans-step" id="aw-${w.id}" data-step="${w.id}"><legend><span class="q">${i + 1} / ${WORDS.length}</span>「${w.label}」</legend>
+        <div class="row"><label for="text-${w.id}">あなたにとって「${w.label}」とはどのようなものですか？</label><textarea id="text-${w.id}" data-word="${w.id}"></textarea></div>
+        <div class="row"><label for="reason-${w.id}">そう考える理由や、思い浮かぶ経験・場面 <small class="opt-br">（任意）</small></label><textarea id="reason-${w.id}"></textarea></div>
+        <div class="row"><label for="image-${w.id}">色・形・風景・音・手触りを思い浮かべるとしたら <small>（任意）</small></label>
+          <div class="color-row"><input type="color" id="color-${w.id}" value="${DEFAULT_IMAGE_COLOR}" aria-label="「${w.label}」のイメージの色"><input type="text" id="image-${w.id}" ${i === 0 ? 'placeholder="例：夕方の橙色、湯のみの温度"' : ''}></div>
+          ${i === 0 ? `<p class="sample-note" style="margin:6px 0 0">左の四角で色を選ぶと、辞書のイメージの横に小さな丸で表示されます。選ばなければ表示しません。</p>` : ''}</div>
+        <div class="row"><label for="tags-${w.id}">キーワード <small>（任意・読点やスペースで区切る）</small></label><input type="text" id="tags-${w.id}" ${i === 0 ? 'placeholder="例：安心、ひとり"' : ''}></div>
+        <div class="ans-step-btns">${i ? '<button type="button" class="btn" data-prev>もどる</button>' : ''}<button type="button" class="btn fill" data-next></button></div>
+      </fieldset>`).join('')}
+      <div class="ans-step" id="aw-me" data-step="me">
       <fieldset><legend>あなたのこと（解釈の下の「考えた人」に表示されます）</legend>
         <div class="row"><label for="name">ペンネーム</label><input type="text" id="name" required placeholder="個人が特定できないものにしてください"><small class="field-note">※ 個人が特定できないものにしてください</small></div>
         <div class="cols">
@@ -1457,19 +1481,54 @@ function viewAdd(preWord) {
         <div class="row"><label for="self">今の自分をもっともよく表す言葉 <small class="opt-br">（任意）</small></label><input type="text" id="self"></div>
       </fieldset>
       ${canPost() ? `<div class="row"><label style="font-weight:400"><input type="checkbox" id="consent" required> <a href="#/about" target="_blank">掲載について</a>を読み、入力した内容が辞書に掲載されることに同意します</label></div>` : ''}
-      <button class="btn fill" type="submit" id="submitBtn">${canPost() ? '送る' : '辞書にくわえる'}</button>
+      <p class="ans-count" id="ansCount" aria-live="polite"></p>
+      <div class="ans-step-btns"><button type="button" class="btn" data-prev>もどる</button><button class="btn fill" type="submit" id="submitBtn">${canPost() ? '送る' : '辞書にくわえる'}</button></div>
+      </div>
     </form>
     ${mine.length ? `<div class="mine-list"><strong style="font-size:14px">あなたがくわえた解釈（${mine.length}）</strong>
       ${mine.map((e, i) => `<div class="item"><span>「${wordById(e.word).label}」${esc(e.text)}${e.sent ? ` <small style="color:var(--sub)">${allEntries().some(x => x.mine && x.id === e.id) ? '（確認待ち）' : '（掲載済み）'}</small>` : ''}</span><span class="item-btns"><button type="button" data-cmp="${i}">くらべる</button><button data-del="${i}">削除</button></span></div>`).join('')}
       ${mine.some(e => e.sent) ? `<p class="sample-note" style="margin:8px 0 0">※ ここで削除しても、送信済みの内容は取り消されません。取り消したいときは<a href="#/about">掲載について</a>の「掲載の取り下げ」をご覧ください。</p>` : ''}
       <p style="margin-top:16px"><button class="btn" id="export" type="button">JSONで書き出す</button></p></div>` : ''}
   </article>`;
-  // 「くらべる」から来たときは、書いた解釈を下書きとして入れる（1回だけ）
-  try { const d = JSON.parse(sessionStorage.getItem(DRAFT_KEY) || 'null');
-    if (d && d.text && (!preWord || d.word === preWord)) { document.getElementById('text').value = d.text;
-      const r = app.querySelector(`input[name=word][value="${d.word}"]`); if (r) r.checked = true; }
-    sessionStorage.removeItem(DRAFT_KEY); } catch {}
   const v = id => document.getElementById(id).value.trim();
+  // 1つの言葉ずつ見せる。「次へ」で次の言葉、最後は「あなたのこと」
+  const STEPS = [...WORDS.map(w => w.id), 'me'];
+  let cur = STEPS[0];
+  const goWord = (id, focus) => {
+    if (!STEPS.includes(id)) return;
+    cur = id;
+    app.querySelectorAll('.ans-step').forEach(s => { s.hidden = s.dataset.step !== id; });
+    app.querySelectorAll('.ans-nav [data-go]').forEach(b => b.classList.toggle('cur', b.dataset.go === id));
+    showProgress();
+    const top = document.getElementById('af').getBoundingClientRect().top;
+    if (top < 0) document.getElementById('af').scrollIntoView({ block: 'start' });
+    if (focus) document.getElementById(id === 'me' ? 'name' : 'text-' + id)?.focus({ preventScroll: true });
+  };
+  const step = d => goWord(STEPS[STEPS.indexOf(cur) + d], true);
+  app.querySelectorAll('[data-next]').forEach(b => b.onclick = () => step(1));
+  app.querySelectorAll('[data-prev]').forEach(b => b.onclick = () => step(-1));
+  // 言葉の欄で Enter を押しても、途中で送信しない
+  app.querySelectorAll('.ans-word input[type=text]').forEach(x => x.addEventListener('keydown', e => { if (e.key === 'Enter') e.preventDefault(); }));
+  // 「くらべる」から来たときは、書いた解釈を下書きとして入れる（1回だけ）
+  let start = preWord;
+  try { const d = JSON.parse(sessionStorage.getItem(DRAFT_KEY) || 'null');
+    if (d && d.text && wordById(d.word) && (!preWord || d.word === preWord)) { document.getElementById('text-' + d.word).value = d.text; start = d.word; }
+    sessionStorage.removeItem(DRAFT_KEY); } catch {}
+  // 書いた言葉に印をつけ、いくつ書いたかを送るボタンの上に出す
+  const filledWords = () => WORDS.filter(w => v('text-' + w.id));
+  const showProgress = () => {
+    const done = filledWords();
+    app.querySelectorAll('.ans-nav [data-go]').forEach(b => b.classList.toggle('done', done.some(w => w.id === b.dataset.go)));
+    // 「次へ」の文字：書いていなければ「書かずに次へ」、最後の言葉のあとは「あなたのこと」へ
+    WORDS.forEach((w, i) => { const b = document.querySelector(`#aw-${w.id} [data-next]`); if (!b) return;
+      b.textContent = !WORDS[i + 1] ? 'あなたのことへ ›' : v('text-' + w.id) ? '次の言葉へ ›' : '書かずに次へ ›'; });
+    document.getElementById('ansCount').textContent = done.length === WORDS.length
+      ? `5つの言葉すべてに書きました。ありがとうございます。`
+      : `${WORDS.length}つの言葉のうち、${done.length}つに書きました。`;
+  };
+  app.querySelectorAll('textarea[data-word]').forEach(t => t.addEventListener('input', showProgress));
+  app.querySelectorAll('.ans-nav [data-go]').forEach(b => b.onclick = () => goWord(b.dataset.go, true));
+  goWord(start && wordById(start) ? start : WORDS[0].id);
   // 選択式の項目：「その他」を選んだときは、書いた内容（空なら「その他」）
   const choice = id => v(id) === 'その他' ? (v(id + 'Other') || 'その他') : v(id);
   app.querySelectorAll('select.choice').forEach(sel => sel.onchange = () => {
@@ -1477,27 +1536,43 @@ function viewAdd(preWord) {
   });
   document.getElementById('af').onsubmit = async ev => {
     ev.preventDefault();
-    const word = app.querySelector('input[name=word]:checked').value;
-    const entry = {
-      word, text: v('text'), reason: v('reason'), image: v('image'), color: document.getElementById('color').value,
-      tags: v('tags').split(/[、,，\s]+/).filter(Boolean),
-      profile: { name: v('name'), age: choice('age'), gender: choice('gender'), role: choice('role'), interest: v('interest'), self: v('self') },
-      id: 'u' + Date.now(), createdAt: new Date().toISOString(),
-    };
-    if (!entry.text) return;
+    const done = filledWords();
+    if (!done.length) { toast('どれかひとつの言葉に、解釈を書いてください'); goWord(WORDS[0].id, true); return; }
+    // 書いていない言葉があるときは、そのまま送るかを確かめる（無理に書かなくてよい）
+    const empty = WORDS.filter(w => !done.includes(w));
+    if (empty.length && !confirm(`${empty.map(w => `「${w.label}」`).join('')}は、まだ書かれていません。\n書いた${done.length}つの言葉だけを送りますか？`)) { goWord(empty[0].id, true); return; }
+    const profile = { name: v('name'), age: choice('age'), gender: choice('gender'), role: choice('role'), interest: v('interest'), self: v('self') };
+    const now = Date.now();
+    const entries = done.map((w, i) => ({
+      word: w.id, text: v('text-' + w.id), reason: v('reason-' + w.id), image: v('image-' + w.id), color: document.getElementById('color-' + w.id).value,
+      tags: v('tags-' + w.id).split(/[、,，\s]+/).filter(Boolean),
+      profile, id: 'u' + now + '-' + i, createdAt: new Date(now).toISOString(),
+    }));
     if (canPost()) {
       const btn = document.getElementById('submitBtn');
       btn.disabled = true; btn.textContent = '送信中…';
-      try { await postToForm(entry); }
-      catch (err) { btn.disabled = false; btn.textContent = '送る'; toast('送信できませんでした。通信状況を確認して、もう一度お試しください'); return; }
-      entry.sent = true;
-      saveMine([...loadMine(), entry]);
-      toast('送信しました。確認ののち辞書に掲載されます');
+      // Google フォームは1回に1つの言葉なので、書いた言葉の数だけ順に送る
+      const sent = [];
+      for (const e of entries) {
+        try { await postToForm(e); }
+        catch (err) {
+          // 送れた分は保存し、その欄は空にする。残りはもう一度「送る」で送れる
+          if (sent.length) saveMine([...loadMine(), ...sent]);
+          sent.forEach(s => { document.getElementById('text-' + s.word).value = ''; });
+          showProgress();
+          btn.disabled = false; btn.textContent = '送る';
+          toast(`「${wordById(e.word).label}」から先を送信できませんでした。通信状況を確認して、もう一度「送る」を押してください`);
+          return;
+        }
+        e.sent = true; sent.push(e);
+      }
+      saveMine([...loadMine(), ...sent]);
+      toast(`${sent.length}つの解釈を送信しました。確認ののち辞書に掲載されます`);
     } else {
-      saveMine([...loadMine(), entry]);
-      toast(`「${wordById(word).label}」の辞書にくわえました`);
+      saveMine([...loadMine(), ...entries]);
+      toast(`${entries.length}つの解釈を辞書にくわえました`);
     }
-    location.hash = '#/word/' + word;
+    location.hash = '#/word/' + entries[0].word;
   };
   app.querySelectorAll('[data-cmp]').forEach(b => b.onclick = () => {
     const e = loadMine()[+b.dataset.cmp]; if (!e) return;
